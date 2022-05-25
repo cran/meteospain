@@ -8,7 +8,7 @@
 .check_status_ria <- function(...) {
 
   # GET step
-  api_response <- httr::GET(...)
+  api_response <- safe_api_access(type = 'rest', ...)
   response_status <- httr::status_code(api_response)
 
   # and now the status checks
@@ -255,10 +255,15 @@
 
   if (any(ria_statuses != 'OK')) {
     message(copyright_style(
-      glue::glue_collapse(messages_to_show, sep = ', also:\n'),
-      "\nfor the following stations and dates:\n",
+      "Some stations didn't return data for some dates:\n",
       glue::glue_collapse(urls_to_show, sep = ',\n'), "\n"
     ))
+
+    # message(copyright_style(
+    #   glue::glue_collapse(messages_to_show, sep = ', also:\n'),
+    #   "\nfor the following stations and dates:\n",
+    #   glue::glue_collapse(urls_to_show, sep = ',\n'), "\n"
+    # ))
   }
 
   # Resolution specific carpentry -------------------------------------------------------------------------
@@ -305,7 +310,7 @@
       mean_wind_speed = units::set_units(.data$mean_wind_speed, 'm/s'),
       mean_wind_direction = units::set_units(.data$mean_wind_direction, 'degree'),
       precipitation = units::set_units(.data$precipitation, "L/m^2"),
-      solar_radiation = units::set_units(.data$solar_radiation, ""),
+      solar_radiation = units::set_units(.data$solar_radiation, "MJ/d/m^2"),
       timestamp = lubridate::as_datetime(.data$timestamp),
       station_id = as.character(.data$station_id)
     ) %>%

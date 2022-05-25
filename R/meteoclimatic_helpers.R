@@ -30,7 +30,7 @@
   # path
   path_resolution <- paste0("http://meteoclimatic.com/feed/rss/", api_options$stations)
   # station_info
-  raw_station_info <- xml2::read_xml(path_resolution)
+  raw_station_info <- safe_api_access(type = 'xml', path_resolution)
   res <- dplyr::tibble(
     service = 'meteoclimatic',
     # station_id is special, we need obtain it from the link, so we need to remove all the link previous to the code
@@ -60,7 +60,7 @@
   path_resolution <- .create_meteoclimatic_path(api_options)
 
   # data
-  data_xml_body <- xml2::read_xml(path_resolution)
+  data_xml_body <- safe_api_access(type = 'xml', path_resolution)
   # data is an xml file. Each station is a node in the xml, so we loop by nodes and build the tibble. Finally
   # we need the stations info, so we join it
   nodes <- xml2::xml_path(xml2::xml_find_all(data_xml_body, '//meteodata/stations/station'))
@@ -78,13 +78,28 @@
     purrr::map_dfr(
       ~ dplyr::tibble(
         service = 'meteoclimatic',
-        timestamp = lubridate::parse_date_time(xml2::xml_text(xml2::xml_find_first(data_xml_body, paste0(.x, '/pubDate'))), orders = 'a, d b Y H:M:S z'),
-        station_id = xml2::xml_text(xml2::xml_find_first(data_xml_body, paste0(.x, '/id'))),
-        max_temperature = xml2::xml_double((xml2::xml_find_first(data_xml_body, paste0(.x, '/stationdata/temperature/max')))),
-        min_temperature = xml2::xml_double((xml2::xml_find_first(data_xml_body, paste0(.x, '/stationdata/temperature/min')))),
-        max_relative_humidity = xml2::xml_double((xml2::xml_find_first(data_xml_body, paste0(.x, '/stationdata/humidity/max')))),
-        min_relative_humidity = xml2::xml_double((xml2::xml_find_first(data_xml_body, paste0(.x, '/stationdata/humidity/min')))),
-        precipitation = xml2::xml_double((xml2::xml_find_first(data_xml_body, paste0(.x, '/stationdata/rain/total'))))
+        timestamp = lubridate::parse_date_time(
+          xml2::xml_text(xml2::xml_find_first(data_xml_body, paste0(.x, '/pubDate'))),
+          orders = 'dbYHMSz'
+        ),
+        station_id = xml2::xml_text(
+          xml2::xml_find_first(data_xml_body, paste0(.x, '/id'))
+        ),
+        max_temperature = xml2::xml_double(
+          (xml2::xml_find_first(data_xml_body, paste0(.x, '/stationdata/temperature/max')))
+        ),
+        min_temperature = xml2::xml_double(
+          (xml2::xml_find_first(data_xml_body, paste0(.x, '/stationdata/temperature/min')))
+        ),
+        max_relative_humidity = xml2::xml_double(
+          (xml2::xml_find_first(data_xml_body, paste0(.x, '/stationdata/humidity/max')))
+        ),
+        min_relative_humidity = xml2::xml_double(
+          (xml2::xml_find_first(data_xml_body, paste0(.x, '/stationdata/humidity/min')))
+        ),
+        precipitation = xml2::xml_double(
+          (xml2::xml_find_first(data_xml_body, paste0(.x, '/stationdata/rain/total')))
+        )
       )
     ) %>%
     dplyr::left_join(.get_info_meteoclimatic(api_options), by = c('service', 'station_id')) %>%

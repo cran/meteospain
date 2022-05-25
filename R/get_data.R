@@ -19,6 +19,7 @@
 #' \code{\link[memoise]{memoise}}. This means that subsequent calls from \code{get_meteo_from} with the same
 #' arguments will be faster as they will not call the meteorological service API. This cache has a maximum
 #' size of 1024 MB and persist 24 hours in the same R session after loading the package.
+#' To forgot the cache, \code{memoise::forget(get_meteo_from)} can be used.
 #'
 #' @examples
 #' \donttest{
@@ -40,6 +41,11 @@
 #'
 #' @export
 get_meteo_from <- function(service = c('aemet', 'meteocat', 'meteoclimatic', 'meteogalicia', 'ria'), options) {
+  # check internet connection
+  if (!curl::has_internet()) {
+    stop("No internet connection detected")
+  }
+
   # check arguments
   service <- rlang::arg_match(service)
 
@@ -75,6 +81,7 @@ get_meteo_from <- function(service = c('aemet', 'meteocat', 'meteoclimatic', 'me
 #' \code{\link[memoise]{memoise}}. This means that subsequent calls from \code{get_meteo_from} with the same
 #' arguments will be faster as they will not call the meteorological service API. This cache has a maximum
 #' size of 1024 MB and persist 24 hours in the same R session after loading the package.
+#' To forgot the cache, \code{memoise::forget(get_stations_info_from)} can be used.
 #'
 #' @examples
 #' \donttest{
@@ -94,6 +101,11 @@ get_stations_info_from <- function(
   service = c('aemet', 'meteocat', 'meteoclimatic', 'meteogalicia', 'ria'),
   options
 ) {
+  # check internet connection
+  if (!curl::has_internet()) {
+    stop("No internet connection detected")
+  }
+
   # check arguments
   service <- rlang::arg_match(service)
 
@@ -136,6 +148,11 @@ get_stations_info_from <- function(
 #'
 #' @export
 get_quota_from <- function(service = c('meteocat'), options) {
+  # check internet connection
+  if (!curl::has_internet()) {
+    stop("No internet connection detected")
+  }
+
   # check arguments
   service <- rlang::arg_match(service)
 

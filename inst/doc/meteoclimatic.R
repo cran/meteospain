@@ -7,3 +7,6 @@ knitr::opts_chunk$set(
   purl = NOT_CRAN
 )
 
+# env keyring
+withr::local_options(list("keyring_backend" = "env"))
+

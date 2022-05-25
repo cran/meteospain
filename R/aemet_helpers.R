@@ -97,7 +97,8 @@
 .check_status_aemet <- function(...) {
 
   # GET step
-  api_response <- httr::GET(...)
+  api_response <- safe_api_access(type = 'rest', ...)
+  # api_response <- httr::GET(...)
   response_status <- httr::status_code(api_response)
 
   # and now the status checks
@@ -249,8 +250,9 @@
     # add service name, to identify the data if joining with other services
     dplyr::mutate(service = 'aemet') %>%
     dplyr::select(
-      .data$service, station_id = .data$indicativo, station_name = .data$nombre, altitude = .data$altitud,
-      latitude = .data$latitud, longitude = .data$longitud
+      .data$service, station_id = .data$indicativo, station_name = .data$nombre,
+      station_province = .data$provincia, altitude = .data$altitud, latitude = .data$latitud,
+      longitude = .data$longitud
     ) %>%
     # latitude and longitude are in strings with the cardinal letter. We need to transform that to numeric
     # and negative when S or W.
@@ -451,6 +453,7 @@
       wind_speed = units::set_units(.data$wind_speed, "m/s"),
       wind_direction = units::set_units(.data$wind_direction, "degree")
     ) %>%
+    dplyr::left_join(stations_info, by = c('service', 'station_id', 'station_name', 'altitude')) %>%
     sf::st_as_sf(coords = c('longitude', 'latitude'), crs = 4326)
 }
 .aemet_daily_carpentry <- function(data, stations_info) {
@@ -486,5 +489,5 @@
       # wind_direction = units::set_units(.data$wind_direction, degree),
       insolation = units::set_units(.data$insolation, "h")
     ) %>%
-    dplyr::left_join(stations_info, by = c('service', 'station_id', 'station_name'))
+    dplyr::left_join(stations_info, by = c('service', 'station_id', 'station_name', 'station_province'))
 }

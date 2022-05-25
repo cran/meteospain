@@ -108,7 +108,8 @@
     'rss', 'observacion', 'listaEstacionsMeteo.action'
   )
   # api response
-  api_response <- httr::GET(
+  api_response <- safe_api_access(
+    type = 'rest',
     "http://servizos.meteogalicia.es",
     path = path_resolution,
     httr::user_agent('https://github.com/emf-creaf/meteospain')
@@ -160,7 +161,8 @@
   # get api query
   query_resolution <- .create_meteogalicia_query(api_options)
   # get the api response
-  api_response <- httr::GET(
+  api_response <- safe_api_access(
+    type = 'rest',
     "http://servizos.meteogalicia.es",
     path = path_resolution,
     query = query_resolution,
@@ -217,7 +219,7 @@
   res <-
     resolution_specific_unnesting(response_content) %>%
     # final unnest, common to all resolutions
-    unnest_debug(.data$listaMedidas) %>%
+    unnest_safe(.data$listaMedidas) %>%
     # remove the non valid data (0 == no validated data, 3 = wrong data, 9 = data not registered)
     dplyr::filter(!.data$lnCodigoValidacion %in% c(0, 3, 9)) %>%
     # remove unwanted variables
@@ -258,21 +260,21 @@
 
 .meteogalicia_current_day_unnesting <- function(response_content) {
   res <- response_content$listHorarios %>%
-    unnest_debug(.data$listaInstantes)
+    unnest_safe(.data$listaInstantes)
 
   return(res)
 }
 
 .meteogalicia_daily_unnesting <- function(response_content) {
   res <- response_content$listDatosDiarios %>%
-    unnest_debug(.data$listaEstacions)
+    unnest_safe(.data$listaEstacions)
 
   return(res)
 }
 
 .meteogalicia_monthly_unnesting <- function(response_content) {
   res <- response_content$listDatosMensuais %>%
-    unnest_debug(.data$listaEstacions)
+    unnest_safe(.data$listaEstacions)
 
   return(res)
 }

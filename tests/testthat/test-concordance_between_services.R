@@ -1,6 +1,9 @@
 # skip if no key ----------------------------------------------------------------------------------------
 skip_if_no_auth('aemet')
 skip_if_no_auth('meteocat')
+skip_if_no_internet()
+
+withr::local_options(list("keyring_backend" = "env"))
 
 # instant_concordance
 test_that("instant concordance exists", {
