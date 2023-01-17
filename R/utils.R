@@ -117,7 +117,7 @@ relocate_vars <- function(data) {
       dplyr::contains('direction'),
       dplyr::contains('speed'),
       dplyr::contains('sol'),
-      .data$geometry
+      "geometry"
     )
 }
 
@@ -226,7 +226,7 @@ main_test_battery <- function(test_object, ...) {
   }
   # selected stations: ONLY IN DATA WHEN SUBSETTING STATIONS
   if (!is.null(args$stations_to_check)) {
-    testthat::expect_equal(unique(test_object$station_id), rlang::eval_tidy(args$stations_to_check))
+    testthat::expect_equal(sort(unique(test_object$station_id)), sort(rlang::eval_tidy(args$stations_to_check)))
   }
 }
 
