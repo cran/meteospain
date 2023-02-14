@@ -364,13 +364,22 @@
   # checking statuses and retrieving data if everything is ok.
   api_statuses <- paths_resolution %>%
     purrr::map(
-      ~ .check_status_meteocat(
-        "https://api.meteo.cat",
-        httr::add_headers(`x-api-key` = api_options$api_key),
-        path = .x,
-        query = query_resolution,
-        httr::user_agent('https://github.com/emf-creaf/meteospain')
-      )
+      \(path) {
+        .check_status_meteocat(
+          "https://api.meteo.cat",
+          httr::add_headers(`x-api-key` = api_options$api_key),
+          path = path,
+          query = query_resolution,
+          httr::user_agent('https://github.com/emf-creaf/meteospain')
+        )
+      }
+      # ~ .check_status_meteocat(
+      #   "https://api.meteo.cat",
+      #   httr::add_headers(`x-api-key` = api_options$api_key),
+      #   path = .x,
+      #   query = query_resolution,
+      #   httr::user_agent('https://github.com/emf-creaf/meteospain')
+      # )
     )
 
   variables_statuses <- purrr::map_depth(api_statuses, 1, 'status') %>%
@@ -420,7 +429,7 @@
     dplyr::distinct() %>%
     # each variable in its own column
     tidyr::pivot_wider(
-      -"variable_code",
+      id_cols = -"variable_code",
       names_from = "variable_name", values_from = "valor"
     ) %>%
     # set service, date and units
@@ -472,7 +481,7 @@
 
 .meteocat_short_carpentry <- function(data) {
   data %>%
-    purrr::map_dfr(function(variable_data) {
+    purrr::map(function(variable_data) {
       unnest_safe(
         variable_data, cols = "variables",
         # names_repair = 'universal'
@@ -480,6 +489,7 @@
       ) %>%
         unnest_safe(cols = "lectures", names_repair = 'universal')
     }) %>%
+    purrr::list_rbind() %>%
     dplyr::select(
       timestamp = "data", station_id = "codi...1", variable_code = "codi...2", "valor"
     )
@@ -487,9 +497,10 @@
 
 .meteocat_long_carpentry <- function(data) {
   data %>%
-    purrr::map_dfr(function(variable_data) {
+    purrr::map(function(variable_data) {
       unnest_safe(variable_data, cols = "valors", names_repair = 'universal')
     }) %>%
+    purrr::list_rbind() %>%
     dplyr::select(
       timestamp = "data", station_id = "codiEstacio", variable_code = "codiVariable",
       "valor"

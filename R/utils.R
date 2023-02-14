@@ -155,14 +155,38 @@ relocate_vars <- function(data) {
   stop(api_status_check$code, ':\n', api_status_check$message)
 }
 
+.aemet_coords_generator <- function(coord_vec) {
+  dplyr::if_else(
+    stringr::str_detect(coord_vec, "S") | stringr::str_detect(coord_vec, "W"),
+    stringr::str_remove_all(coord_vec, '[A-Za-z]') |>
+      stringr::str_extract_all(".{1,2}") |>
+      purrr::map(.f = as.numeric) |>
+      purrr::map(\(splitted_values) {splitted_values * c(1, 1/60, 1/3600)}) |>
+      purrr::map_dbl(\(x) {sum(x, na.rm = TRUE) * (-1)}),
+    stringr::str_remove_all(coord_vec, '[A-Za-z]') |>
+      stringr::str_extract_all(".{1,2}") |>
+      purrr::map(.f = as.numeric) |>
+      purrr::map(\(splitted_values) {splitted_values * c(1, 1/60, 1/3600)}) |>
+      purrr::map_dbl(\(x) {sum(x, na.rm = TRUE)})
+  )
+}
+
 unnest_safe <- function(x, ...) {
 
   # if x is a list instead of a dataframe, something went wrong (happens sometimes in
   # meteogalicia or meteocat).
   if (inherits(x, 'list')) {
-    stop(glue::glue(
-      "Something went wrong, no data.frame returned, but a list with the following names {names(x)} and the following contents {glue::glue_collapse(x, sep = '\n')}"
-    ))
+
+    # with new purrr (>=1.0.0) empty response (like in some cases for meteocat
+    # variables) is maintained as list() instead of NULL. So if is an empty
+    # list, return tibble(), if is a list not empty, issue a warning
+    if (length(x) > 0) {
+      warning(glue::glue(
+        "Something went wrong, no data.frame returned, but a list with the following names {names(x)} and the following contents {glue::glue_collapse(x, sep = '\n')}\n Returning an empty data.frame"
+      ))
+    }
+
+    return(dplyr::tibble())
   }
 
   # now, we need to check if "x" is NULL. Sometimes the list of dataframes is not complete, with
@@ -229,19 +253,6 @@ main_test_battery <- function(test_object, ...) {
     testthat::expect_equal(sort(unique(test_object$station_id)), sort(rlang::eval_tidy(args$stations_to_check)))
   }
 }
-
-# unnest_debug <- function(x, ...) {
-#
-#   if (inherits(x, 'list')) {
-#     stop(glue::glue(
-#       "Something went wrong, no data.frame returned, but a list with the following names {names(x)} and the following contents {glue::glue_collapse(x, sep = '\n')}"
-#     ))
-#   }
-#
-#   return(tidyr::unnest(x, ...))
-#
-# }
-
 
 # GET and xml2 safe functions -----------------------------------------------------
 

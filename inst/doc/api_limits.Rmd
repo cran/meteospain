@@ -101,7 +101,7 @@ with all the results directly:
 ```{r tidyverse_loop, eval=NOT_CRAN}
 # tidyverse map
 res_tidyverse <-
-  purrr::map2_dfr(
+  purrr::map2(
     .x = start_dates, .y = end_dates,
     .f = function(start_date, end_date) {
       res <- get_meteo_from(
@@ -115,9 +115,10 @@ res_tidyverse <-
       )
       return(res)
     }
-  )
+  ) %>%
+  purrr::list_rbind()
 
-res_tidyverse
+head(res_tidyverse)
 ```
 
 ### for loop
@@ -142,7 +143,7 @@ for (index in seq_along(start_dates)) {
   res_for <- rbind(res_for, temp_res)
 }
 
-res_for
+head(res_for)
 ```
 
 
@@ -185,7 +186,7 @@ for AEMET:
 start_dates <- seq(as.Date('2020-01-01'), as.Date('2020-04-01'), 'months')
 # tidyverse map
 meteocat_2020q1_tidyverse <-
-  purrr::map_dfr(
+  purrr::map(
     .x = start_dates,
     .f = function(start_date) {
       res <- get_meteo_from(
@@ -198,8 +199,10 @@ meteocat_2020q1_tidyverse <-
       )
       return(res)
     }
-  )
-meteocat_2020q1_tidyverse
+  ) %>%
+  purrr::list_rbind()
+
+head(meteocat_2020q1_tidyverse)
 
 # base for loop
 meteocat_2020q1_for <- data.frame()
@@ -216,7 +219,8 @@ for (index in seq_along(start_dates)) {
   
   meteocat_2020q1_for <- rbind(meteocat_2020q1_for, temp_res)
 }
-meteocat_2020q1_for
+
+head(meteocat_2020q1_for)
 
 # both are identical
 identical(meteocat_2020q1_tidyverse, meteocat_2020q1_for)
@@ -242,7 +246,7 @@ Which means that if we need more than one year of monthly data, we need to use l
 start_dates <- seq(as.Date('2019-01-01'), as.Date('2020-01-01'), 'years')
 # tidyverse map
 meteocat_2019_20_tidyverse <-
-  purrr::map_dfr(
+  purrr::map(
     .x = start_dates,
     .f = function(start_date) {
       res <- get_meteo_from(
@@ -255,8 +259,10 @@ meteocat_2019_20_tidyverse <-
       )
       return(res)
     }
-  )
-meteocat_2019_20_tidyverse
+  ) %>%
+  purrr::list_rbind()
+
+head(meteocat_2019_20_tidyverse)
 
 # base for loop
 meteocat_2019_20_for <- data.frame()
@@ -273,7 +279,7 @@ for (index in seq_along(start_dates)) {
   
   meteocat_2019_20_for <- rbind(meteocat_2019_20_for, temp_res)
 }
-meteocat_2019_20_for
+head(meteocat_2019_20_for)
 
 # both are identical
 identical(meteocat_2019_20_tidyverse, meteocat_2019_20_for)

@@ -340,14 +340,14 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(meteospain)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggforce)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(units)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; udunits database from /usr/share/udunits/udunits2.xml</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Linking to GEOS 3.11.1, GDAL 3.6.2, PROJ 9.1.0; sf_use_s2() is TRUE</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(keyring)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(meteospain)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(ggforce)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(units)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; udunits database from /usr/share/udunits/udunits2.xml</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt; Linking to GEOS 3.11.1, GDAL 3.6.2, PROJ 9.1.0; sf_use_s2() is TRUE</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="fu">library</span>(keyring)</span></code></pre></div>
 <div id="aemet-service" class="section level1">
 <h1>AEMET service</h1>
 <p><a href="https://www.aemet.es/en/portada">AEMET</a> is the Spanish
@@ -391,39 +391,39 @@ publicly available (github…), neither store them in plain text files.
 One option is using the <a href="https://github.com/r-lib/keyring">keyring package</a> for managing
 and accessing keys:</p>
 </blockquote>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&#39;keyring&#39;</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(keyring)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">key_set</span>(<span class="st">&#39;aemet&#39;</span>) <span class="co"># A prompt asking for the secret (the API Key) will appear.</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&#39;keyring&#39;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">library</span>(keyring)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="fu">key_set</span>(<span class="st">&#39;aemet&#39;</span>) <span class="co"># A prompt asking for the secret (the API Key) will appear.</span></span></code></pre></div>
 </div>
 <div id="examples" class="section level3">
 <h3>Examples</h3>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># current day, all stations</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>api_options <span class="ot">&lt;-</span> <span class="fu">aemet_options</span>(</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">resolution =</span> <span class="st">&#39;current_day&#39;</span>,</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">api_key =</span> <span class="fu">key_get</span>(<span class="st">&#39;aemet&#39;</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>api_options</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># current day, all stations</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>api_options <span class="ot">&lt;-</span> <span class="fu">aemet_options</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="at">resolution =</span> <span class="st">&#39;current_day&#39;</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">api_key =</span> <span class="fu">key_get</span>(<span class="st">&#39;aemet&#39;</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>)</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>api_options</span></code></pre></div>
 <pre><code>#&gt; $resolution
 #&gt; [1] &quot;current_day&quot;
 #&gt; 
 #&gt; $start_date
-#&gt; [1] &quot;2023-01-17&quot;
+#&gt; [1] &quot;2023-02-14&quot;
 #&gt; 
 #&gt; $end_date
-#&gt; [1] &quot;2023-01-17&quot;
+#&gt; [1] &quot;2023-02-14&quot;
 #&gt; 
 #&gt; $stations
 #&gt; NULL
 #&gt; 
 #&gt; $api_key
 #&gt; [1] &quot;my_api_key&quot;</code></pre>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># daily, all stations</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>api_options <span class="ot">&lt;-</span> <span class="fu">aemet_options</span>(</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">resolution =</span> <span class="st">&#39;daily&#39;</span>,</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">start_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;2020-04-25&#39;</span>), <span class="at">end_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;2020-05-25&#39;</span>),</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">api_key =</span> <span class="fu">key_get</span>(<span class="st">&#39;aemet&#39;</span>)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>api_options</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># daily, all stations</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>api_options <span class="ot">&lt;-</span> <span class="fu">aemet_options</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="at">resolution =</span> <span class="st">&#39;daily&#39;</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="at">start_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;2020-04-25&#39;</span>), <span class="at">end_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;2020-05-25&#39;</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="at">api_key =</span> <span class="fu">key_get</span>(<span class="st">&#39;aemet&#39;</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>)</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>api_options</span></code></pre></div>
 <pre><code>#&gt; $resolution
 #&gt; [1] &quot;daily&quot;
 #&gt; 
@@ -443,27 +443,27 @@ and accessing keys:</p>
 <div id="aemet-stations-info" class="section level2">
 <h2>AEMET stations info</h2>
 <p>Accessing station metadata for AEMET is simple:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">get_stations_info_from</span>(<span class="st">&#39;aemet&#39;</span>, api_options)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">get_stations_info_from</span>(<span class="st">&#39;aemet&#39;</span>, api_options)</span></code></pre></div>
 </div>
 <div id="aemet-data" class="section level2">
 <h2>AEMET data</h2>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>api_options <span class="ot">&lt;-</span> <span class="fu">aemet_options</span>(</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">resolution =</span> <span class="st">&#39;daily&#39;</span>,</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">start_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;2020-04-25&#39;</span>),</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">api_key =</span> <span class="fu">key_get</span>(<span class="st">&#39;aemet&#39;</span>)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>spain_20200425 <span class="ot">&lt;-</span> <span class="fu">get_meteo_from</span>(<span class="st">&#39;aemet&#39;</span>, <span class="at">options =</span> api_options)</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>spain_20200425</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>api_options <span class="ot">&lt;-</span> <span class="fu">aemet_options</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="at">resolution =</span> <span class="st">&#39;daily&#39;</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">start_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;2020-04-25&#39;</span>),</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">api_key =</span> <span class="fu">key_get</span>(<span class="st">&#39;aemet&#39;</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>)</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>spain_20200425 <span class="ot">&lt;-</span> <span class="fu">get_meteo_from</span>(<span class="st">&#39;aemet&#39;</span>, <span class="at">options =</span> api_options)</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>spain_20200425</span></code></pre></div>
 <p>Visually:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>spain_20200425 <span class="sc">%&gt;%</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  units<span class="sc">::</span><span class="fu">drop_units</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">colour =</span> mean_temperature)) <span class="sc">+</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_viridis_c</span>()</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>spain_20200425 <span class="sc">%&gt;%</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x =</span> precipitation))</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>spain_20200425 <span class="sc">%&gt;%</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  units<span class="sc">::</span><span class="fu">drop_units</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">colour =</span> mean_temperature)) <span class="sc">+</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="fu">scale_colour_viridis_c</span>()</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>spain_20200425 <span class="sc">%&gt;%</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x =</span> precipitation))</span></code></pre></div>
 </div>
 </div>
 
