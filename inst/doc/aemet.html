@@ -346,7 +346,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(units)</span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; udunits database from /usr/share/udunits/udunits2.xml</span></span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt; Linking to GEOS 3.11.1, GDAL 3.6.2, PROJ 9.1.0; sf_use_s2() is TRUE</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt; Linking to GEOS 3.11.1, GDAL 3.6.3, PROJ 9.1.0; sf_use_s2() is TRUE</span></span>
 <span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="fu">library</span>(keyring)</span></code></pre></div>
 <div id="aemet-service" class="section level1">
 <h1>AEMET service</h1>
@@ -366,10 +366,19 @@ temporal resolutions:</p>
 selected stations.</li>
 <li>“daily”, returning the daily aggregated measures for all or selected
 stations.</li>
+<li>“monthly”, returning the monthly aggregated measures for
+<strong>only one</strong> station.</li>
+<li>“yearly”, returning the yearly aggregated measures for <strong>only
+one</strong> station.</li>
 </ul>
 <p>In “daily”, a <code>start_date</code> (and optionally an
 <code>end_date</code>) arguments must be provided, indicating the period
-from which retrieve the data.</p>
+from which retrieve the data.<br />
+In “monthly” and “yearly”, only the years in <code>start_date</code> and
+<code>end_date</code> are used, returning all year monthly or yearly
+values (<em>i.e</em> <code>start_date = as.Date(&quot;2020-12-01&quot;)</code> is
+the same as <code>start_date = as.Date(&quot;2020-01-01&quot;)</code> as both will
+return all 2020 measures).</p>
 </div>
 <div id="stations" class="section level3">
 <h3>Stations</h3>
@@ -377,6 +386,8 @@ from which retrieve the data.</p>
 all stations. If a character vector of stations codes is supplied in the
 <code>stations</code> argument, a filter step is done before returning
 the data to maintain only the stations supplied.</p>
+<p>The exception for this are “monthly” and “yearly” temporal
+resolutions. AEMET API only allows for one station to be retrieved.</p>
 </div>
 <div id="aemet-api-key" class="section level3">
 <h3>AEMET API Key</h3>
@@ -407,10 +418,10 @@ and accessing keys:</p>
 #&gt; [1] &quot;current_day&quot;
 #&gt; 
 #&gt; $start_date
-#&gt; [1] &quot;2023-02-14&quot;
+#&gt; [1] &quot;2023-03-22&quot;
 #&gt; 
 #&gt; $end_date
-#&gt; [1] &quot;2023-02-14&quot;
+#&gt; [1] &quot;2023-03-22&quot;
 #&gt; 
 #&gt; $stations
 #&gt; NULL
@@ -438,32 +449,54 @@ and accessing keys:</p>
 #&gt; 
 #&gt; $api_key
 #&gt; [1] &quot;my_api_key&quot;</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># monthly, only one station because AEMET API limitations</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>api_options <span class="ot">&lt;-</span> <span class="fu">aemet_options</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">resolution =</span> <span class="st">&#39;monthly&#39;</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="at">start_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;2020-04-25&#39;</span>), <span class="at">end_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;2020-05-25&#39;</span>),</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="at">station =</span> <span class="st">&quot;0149X&quot;</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="at">api_key =</span> <span class="fu">key_get</span>(<span class="st">&#39;aemet&#39;</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>)</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>api_options</span></code></pre></div>
+<pre><code>#&gt; $resolution
+#&gt; [1] &quot;monthly&quot;
+#&gt; 
+#&gt; $start_date
+#&gt; [1] &quot;2020-01-01&quot;
+#&gt; 
+#&gt; $end_date
+#&gt; [1] &quot;2020-12-31&quot;
+#&gt; 
+#&gt; $stations
+#&gt; [1] &quot;0149X&quot;
+#&gt; 
+#&gt; $api_key
+#&gt; [1] &quot;my_api_key&quot;</code></pre>
 </div>
 </div>
 <div id="aemet-stations-info" class="section level2">
 <h2>AEMET stations info</h2>
 <p>Accessing station metadata for AEMET is simple:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">get_stations_info_from</span>(<span class="st">&#39;aemet&#39;</span>, api_options)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">get_stations_info_from</span>(<span class="st">&#39;aemet&#39;</span>, api_options)</span></code></pre></div>
 </div>
 <div id="aemet-data" class="section level2">
 <h2>AEMET data</h2>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>api_options <span class="ot">&lt;-</span> <span class="fu">aemet_options</span>(</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="at">resolution =</span> <span class="st">&#39;daily&#39;</span>,</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">start_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;2020-04-25&#39;</span>),</span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">api_key =</span> <span class="fu">key_get</span>(<span class="st">&#39;aemet&#39;</span>)</span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>)</span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>spain_20200425 <span class="ot">&lt;-</span> <span class="fu">get_meteo_from</span>(<span class="st">&#39;aemet&#39;</span>, <span class="at">options =</span> api_options)</span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>spain_20200425</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>api_options <span class="ot">&lt;-</span> <span class="fu">aemet_options</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="at">resolution =</span> <span class="st">&#39;daily&#39;</span>,</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="at">start_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;2020-04-25&#39;</span>),</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="at">api_key =</span> <span class="fu">key_get</span>(<span class="st">&#39;aemet&#39;</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>)</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>spain_20200425 <span class="ot">&lt;-</span> <span class="fu">get_meteo_from</span>(<span class="st">&#39;aemet&#39;</span>, <span class="at">options =</span> api_options)</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>spain_20200425</span></code></pre></div>
 <p>Visually:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>spain_20200425 <span class="sc">%&gt;%</span></span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  units<span class="sc">::</span><span class="fu">drop_units</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">colour =</span> mean_temperature)) <span class="sc">+</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="fu">scale_colour_viridis_c</span>()</span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>spain_20200425 <span class="sc">%&gt;%</span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x =</span> precipitation))</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>spain_20200425 <span class="sc">|&gt;</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  units<span class="sc">::</span><span class="fu">drop_units</span>() <span class="sc">|&gt;</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">colour =</span> mean_temperature)) <span class="sc">+</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  <span class="fu">scale_colour_viridis_c</span>()</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>spain_20200425 <span class="sc">|&gt;</span></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x =</span> precipitation))</span></code></pre></div>
 </div>
 </div>
 

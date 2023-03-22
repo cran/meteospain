@@ -10,7 +10,7 @@
 \title{Options for meteorological services}
 \usage{
 aemet_options(
-  resolution = c("current_day", "daily"),
+  resolution = c("current_day", "daily", "monthly", "yearly"),
   start_date = Sys.Date(),
   end_date = start_date,
   stations = NULL,
@@ -94,7 +94,8 @@ package for managing and accessing keys.
 
 Some services accept querying multiple stations at once, and other only allows one station per query:
 \itemize{
-\item{AEMET: One or more stations can be provided in a character vector.}
+\item{AEMET: One or more stations can be provided in a character vector (except for
+monthly and yearly resolutions, as they only accept one station.}
 \item{MeteoCat: One or more stations can be provided in a character vector.}
 \item{MeteoGalicia: One or more stations can be provided in a character vector.}
 \item{Meteoclimatic: Only one station can be provided. Nevertheless, some codes can be used to retrieve

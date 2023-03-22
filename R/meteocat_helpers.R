@@ -117,11 +117,14 @@
     if (api_status_check$code == 429) {
       return(.manage_429_errors(api_status_check, api_options, .get_quota_meteocat))
     } else {
-      stop(api_status_check$code, ':\n', api_status_check$message)
+      cli::cli_abort(c(
+        x = api_status_check$code,
+        i = api_status_check$message
+      ))
     }
   }
 
-  response_content <- api_status_check$content$plans %>%
+  response_content <- api_status_check$content$plans |>
     dplyr::as_tibble()
   return(response_content)
 }
@@ -160,7 +163,7 @@
     }
   }
 
-  response_content <- api_status_check$content %>%
+  response_content <- api_status_check$content |>
     dplyr::as_tibble()
   return(response_content)
 }
@@ -236,10 +239,9 @@
 
   # not recognised resolution
   if (length(paths_resolution) < 1) {
-    stop(
-      api_options$resolution,
-      " is not a valid temporal resolution for MeteoCat.\nPlease see meteocat_options help for more information"
-    )
+    cli::cli_abort(c(
+      "{.arg {api_options$resolution}} is not a valid temporal resolution for MeteoCat.\nPlease see meteocat_options help for more information"
+    ))
   }
 
   return(paths_resolution)
@@ -281,17 +283,12 @@
   # GET parts needed --------------------------------------------------------------------------------------
   # path
   path_resolution <- c('xema', 'v1', 'estacions', 'metadades')
-  # # meteocat stamp function
-  # meteocat_stamp <- lubridate::stamp("2020-12-25Z", orders = "YOmd", quiet = TRUE)
-  # # query
-  # query_resolution <- c(glue::glue("estat=ope&data={meteocat_stamp(api_options$start_date)}"))
 
   # Status check ------------------------------------------------------------------------------------------
   api_status_check <- .check_status_meteocat(
     "https://api.meteo.cat",
     httr::add_headers(`x-api-key` = api_options$api_key),
     path = path_resolution,
-    # query = query_resolution,
     httr::user_agent('https://github.com/emf-creaf/meteospain')
   )
 
@@ -300,7 +297,10 @@
     if (api_status_check$code == 429) {
       return(.manage_429_errors(api_status_check, api_options, .get_info_meteocat))
     } else {
-      stop(api_status_check$code, ':\n', api_status_check$message)
+      cli::cli_abort(c(
+        x = api_status_check$code,
+        i = api_status_check$message
+      ))
     }
   }
 
@@ -309,28 +309,28 @@
   response_content <- api_status_check$content
 
   coords_df <- response_content[['coordenades']]
-  province_df <- response_content[['provincia']]['nom'] %>%
+  province_df <- response_content[['provincia']]['nom'] |>
     dplyr::rename(station_province = "nom")
 
-  response_content %>%
-    dplyr::as_tibble() %>%
+  response_content |>
+    dplyr::as_tibble() |>
     # add service name, to identify the data if joining with other services
-    dplyr::mutate(service = 'meteocat') %>%
+    dplyr::mutate(service = 'meteocat') |>
     dplyr::select(
       !dplyr::any_of(c(
         'coordenades', 'municipi', 'comarca', 'provincia',
         'xarxa', 'estats', 'tipus', 'emplacament'
       ))
-    ) %>%
-    dplyr::bind_cols(coords_df, province_df) %>%
+    ) |>
+    dplyr::bind_cols(coords_df, province_df) |>
     dplyr::select(
       "service", station_id = "codi", station_name = "nom", "station_province",
       altitude = "altitud", "longitud", "latitud"
-    ) %>%
-    dplyr::distinct() %>%
+    ) |>
+    dplyr::distinct() |>
     dplyr::mutate(
       altitude = units::set_units(.data$altitude, 'm')
-    ) %>%
+    ) |>
     sf::st_as_sf(coords = c('longitud', 'latitud'), crs = 4326)
 
 }
@@ -362,7 +362,7 @@
   # Here the things are a little convoluted. MeteoCat, for returning all stations only allows one variable
   # and one day. This means that for all variables, we need to loop around all paths (variables) needed,
   # checking statuses and retrieving data if everything is ok.
-  api_statuses <- paths_resolution %>%
+  api_statuses <- paths_resolution |>
     purrr::map(
       \(path) {
         .check_status_meteocat(
@@ -373,29 +373,22 @@
           httr::user_agent('https://github.com/emf-creaf/meteospain')
         )
       }
-      # ~ .check_status_meteocat(
-      #   "https://api.meteo.cat",
-      #   httr::add_headers(`x-api-key` = api_options$api_key),
-      #   path = .x,
-      #   query = query_resolution,
-      #   httr::user_agent('https://github.com/emf-creaf/meteospain')
-      # )
     )
 
-  variables_statuses <- purrr::map_depth(api_statuses, 1, 'status') %>%
+  variables_statuses <- purrr::map_depth(api_statuses, 1, 'status') |>
     purrr::flatten_chr()
-  variables_codes <- purrr::map_depth(api_statuses, 1, 'code') %>%
+  variables_codes <- purrr::map_depth(api_statuses, 1, 'code') |>
     purrr::flatten_dbl()
-  variables_messages <- purrr::map_depth(api_statuses, 1, 'message') %>%
+  variables_messages <- purrr::map_depth(api_statuses, 1, 'message') |>
     purrr::flatten_chr()
 
   if (any(variables_statuses != 'OK')) {
     if (any(variables_codes == 429)) {
-      messages_to_show <- variables_messages[which(variables_codes == 429)] %>% unique()
+      messages_to_show <- variables_messages[which(variables_codes == 429)] |> unique()
       return(.manage_429_errors(list(code = 429, message = messages_to_show[1]), api_options, .get_data_meteocat))
     } else {
-      messages_to_show <- variables_messages[which(variables_codes != 200)] %>% unique()
-      stop(glue::glue_collapse(messages_to_show, sep = ', also:\n'))
+      messages_to_show <- variables_messages[which(variables_codes != 200)] |> unique()
+      cli::cli_abort(c(messages_to_show))
     }
   }
 
@@ -420,18 +413,18 @@
   stations_info <- .get_info_meteocat(api_options)
 
   # Data transformation -----------------------------------------------------------------------------------
-  response_trasformed <- purrr::map_depth(api_statuses, 1, 'content') %>%
+  response_trasformed <- purrr::map_depth(api_statuses, 1, 'content') |>
     # resolution specific unnesting of raw data
-    resolution_specific_unnest() %>%
+    resolution_specific_unnest() |>
     # transform variable codes to standard names
-    dplyr::mutate(variable_name = .meteocat_var_codes_2_names(.data$variable_code)) %>%
+    dplyr::mutate(variable_name = .meteocat_var_codes_2_names(.data$variable_code)) |>
     # for daily, monthly and yearly, sometimes there are duplicated rows, remove them
-    dplyr::distinct() %>%
+    dplyr::distinct() |>
     # each variable in its own column
     tidyr::pivot_wider(
       id_cols = -"variable_code",
       names_from = "variable_name", values_from = "valor"
-    ) %>%
+    ) |>
     # set service, date and units
     dplyr::mutate(
       service = 'meteocat',
@@ -444,33 +437,32 @@
       dplyr::across(dplyr::contains('direction'), ~ units::set_units(.x, 'degree')),
     )
 
-  res <- response_trasformed %>%
+  res <- response_trasformed |>
     # remove unwanted stations
-    dplyr::filter(!! filter_expression) %>%
+    dplyr::filter(!! filter_expression) |>
     # join stations_info
-    dplyr::left_join(stations_info, by = c('service', 'station_id')) %>%
+    dplyr::left_join(stations_info, by = c('service', 'station_id')) |>
     # arrange data
-    dplyr::arrange(.data$timestamp, .data$station_id) %>%
+    dplyr::arrange(.data$timestamp, .data$station_id) |>
     # reorder variables to be consistent among all services
-    relocate_vars() %>%
+    relocate_vars() |>
     # ensure we have an sf
     sf::st_as_sf()
 
   # Check if any stations were returned -------------------------------------------------------------------
   if ((!is.null(api_options$stations)) & nrow(res) < 1) {
-    stop(
-      "Station(s) provided have no data for the dates selected.\n",
-      "Available stations with data for the actual query are:\n",
+    cli::cli_abort(c(
+      "Station(s) provided have no data for the dates selected.",
+      "Available stations with data for the actual query are:",
       glue::glue_collapse(unique(response_trasformed$station_id), sep = ', ', last = ' and ')
-    )
+    ))
   }
 
   # Copyright message -------------------------------------------------------------------------------------
-  message(
-    copyright_style("Data provided by meteo.cat \u00A9 Servei Meteorol\u00F2gic de Catalunya"),
-    '\n',
+  cli::cli_inform(c(
+    i = copyright_style("Data provided by meteo.cat \u00A9 Servei Meteorol\u00F2gic de Catalunya"),
     legal_note_style("https://www.meteo.cat/wpweb/avis-legal/#info")
-  )
+  ))
 
   return(res)
 }
@@ -480,27 +472,27 @@
 # resolution_specific_carpentry -------------------------------------------------------------------------
 
 .meteocat_short_carpentry <- function(data) {
-  data %>%
+  data |>
     purrr::map(function(variable_data) {
       unnest_safe(
         variable_data, cols = "variables",
         # names_repair = 'universal'
         names_repair = ~ vctrs::vec_as_names(.x, repair = 'universal', quiet = TRUE)
-      ) %>%
+      ) |>
         unnest_safe(cols = "lectures", names_repair = 'universal')
-    }) %>%
-    purrr::list_rbind() %>%
+    }) |>
+    purrr::list_rbind() |>
     dplyr::select(
       timestamp = "data", station_id = "codi...1", variable_code = "codi...2", "valor"
     )
 }
 
 .meteocat_long_carpentry <- function(data) {
-  data %>%
+  data |>
     purrr::map(function(variable_data) {
       unnest_safe(variable_data, cols = "valors", names_repair = 'universal')
-    }) %>%
-    purrr::list_rbind() %>%
+    }) |>
+    purrr::list_rbind() |>
     dplyr::select(
       timestamp = "data", station_id = "codiEstacio", variable_code = "codiVariable",
       "valor"

@@ -407,26 +407,26 @@ After the join we convert back to <code>sf</code>.</p>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">as_tibble</span>(meteocat_daily),</span>
 <span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">as_tibble</span>(meteogalicia_daily),</span>
 <span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">as_tibble</span>(ria_daily)</span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">reduce</span>(dplyr<span class="sc">::</span>full_join) <span class="sc">%&gt;%</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">reduce</span>(dplyr<span class="sc">::</span>full_join) <span class="sc">|&gt;</span></span>
 <span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  sf<span class="sc">::</span><span class="fu">st_as_sf</span>()</span>
 <span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a></span>
 <span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>april_2020_spain</span></code></pre></div>
 <p>We can visualize the data, only one day.</p>
 <div id="by-service" class="section level4">
 <h4>By service</h4>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>april_2020_spain <span class="sc">%&gt;%</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(lubridate<span class="sc">::</span><span class="fu">day</span>(timestamp) <span class="sc">==</span> <span class="dv">25</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  units<span class="sc">::</span><span class="fu">drop_units</span>() <span class="sc">%&gt;%</span></span>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>april_2020_spain <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(lubridate<span class="sc">::</span><span class="fu">day</span>(timestamp) <span class="sc">==</span> <span class="dv">25</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  units<span class="sc">::</span><span class="fu">drop_units</span>() <span class="sc">|&gt;</span></span>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">colour =</span> service)) <span class="sc">+</span></span>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
 <span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="fu">scale_colour_viridis_d</span>()</span></code></pre></div>
 </div>
 <div id="by-one-variable" class="section level4">
 <h4>By one variable</h4>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>april_2020_spain <span class="sc">%&gt;%</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(lubridate<span class="sc">::</span><span class="fu">day</span>(timestamp) <span class="sc">==</span> <span class="dv">25</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  units<span class="sc">::</span><span class="fu">drop_units</span>() <span class="sc">%&gt;%</span></span>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>april_2020_spain <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(lubridate<span class="sc">::</span><span class="fu">day</span>(timestamp) <span class="sc">==</span> <span class="dv">25</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  units<span class="sc">::</span><span class="fu">drop_units</span>() <span class="sc">|&gt;</span></span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">colour =</span> mean_temperature)) <span class="sc">+</span></span>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="fu">scale_colour_viridis_c</span>()</span></code></pre></div>

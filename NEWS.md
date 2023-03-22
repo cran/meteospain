@@ -1,3 +1,22 @@
+# meteospain 0.1.2
+
+* Added monthly and yearly temporal resolutions to AEMET service
+* Removed dependencies:
+  + Removed dependency (and exports) from magrittr. Substituted all magrittr pipes (`%>%`) by native
+  pipes (`|>`)
+  + Removed dependency from crayon. Using cli now.
+* New dependencies
+  + Added cli to manage communication with the user (messages, warnings and errors)
+* Minor changes
+  + Improved tests
+  + AEMET API: return always the same variables (depending on resolution). If the variable doesn't
+  exists for the station and date, is created with NA.
+  + AEMET API: `insolation` variable added to returned AEMET current data
+  + RIA API: improved messages
+  + meteogalicia API: improved error managing
+  + meteogalicia API: improved path creation
+  + Code cleaning (removing old code, fixing typos, code style...)
+
 # meteospain 0.1.1
 
 * Fixed bug in AEMET coordinates (#18)

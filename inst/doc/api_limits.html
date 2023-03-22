@@ -346,8 +346,9 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 allowing querying more than the predetermined period in each API.</p>
 <div id="aemet-api" class="section level2">
 <h2>AEMET API</h2>
-<p>AEMET API limit the daily data download to 31 days:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># aemet api has a limit for 31 days:</span></span>
+<p>AEMET API limit the daily data download to 31 days, and the monthly
+and yearly data to 3 years:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># aemet api has a limit for 31 days in daily:</span></span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">get_meteo_from</span>(</span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="st">&#39;aemet&#39;</span>,</span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="fu">aemet_options</span>(</span>
@@ -356,11 +357,24 @@ allowing querying more than the predetermined period in each API.</p>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>    <span class="at">start_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;1990-01-01&#39;</span>),</span>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>    <span class="at">end_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;1990-12-31&#39;</span>)</span>
 <span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  )</span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>)</span></code></pre></div>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>)</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co"># and monthly and yearly data to 3 years</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="fu">get_meteo_from</span>(</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="st">&#39;aemet&#39;</span>,</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  <span class="fu">aemet_options</span>(</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>    <span class="at">api_key =</span> keyring<span class="sc">::</span><span class="fu">key_get</span>(<span class="st">&#39;aemet&#39;</span>),</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>    <span class="at">resolution =</span> <span class="st">&#39;yearly&#39;</span>,</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>    <span class="at">start_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;2005-01-01&#39;</span>),</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>    <span class="at">end_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;2020-12-31&#39;</span>),</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>    <span class="at">stations =</span> <span class="st">&quot;0149X&quot;</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>  )</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>)</span></code></pre></div>
 <p>This means that with one call to <code>get_meteo_from</code> to the
-AEMET service, one can only download 31 days of data. If the period
-needed is bigger than that, one option is performing all the calls
-necessary and join the results:</p>
+AEMET service, one can only download 31 days of data, (or 3 years in
+monthly and yearly data).<br />
+If the period needed is bigger than that, one option is performing all
+the calls necessary and join the results:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>res_1990_jan <span class="ot">&lt;-</span> <span class="fu">get_meteo_from</span>(</span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="st">&#39;aemet&#39;</span>,</span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="fu">aemet_options</span>(</span>
@@ -429,7 +443,7 @@ directly:</p>
 <span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>      )</span>
 <span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>      <span class="fu">return</span>(res)</span>
 <span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>    }</span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">list_rbind</span>()</span>
 <span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a></span>
 <span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="fu">head</span>(res_tidyverse)</span></code></pre></div>
@@ -502,7 +516,7 @@ in a similar way as described previously for AEMET:</p>
 <span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>      )</span>
 <span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>      <span class="fu">return</span>(res)</span>
 <span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>    }</span>
-<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">list_rbind</span>()</span>
 <span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a></span>
 <span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="fu">head</span>(meteocat_2020q1_tidyverse)</span>
@@ -557,7 +571,7 @@ need to use loops again:</p>
 <span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>      )</span>
 <span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a>      <span class="fu">return</span>(res)</span>
 <span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a>    }</span>
-<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">list_rbind</span>()</span>
 <span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a></span>
 <span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a><span class="fu">head</span>(meteocat_2019_20_tidyverse)</span>

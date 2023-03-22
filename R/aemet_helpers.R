@@ -32,29 +32,35 @@
 
   # monthly
   # monthly API does not work for now
-  # if (resolution == 'monthly') {
-  #   # issue a warning if more than one station is provided
-  #   if (length(api_options$stations) > 1) {
-  #     warning(
-  #       "AEMET API for monthly aggregated values only accepts one station per query.\n",
-  #       "Only the first station provided will be used: ", api_options$stations[1]
-  #     )
-  #   }
-  #
-  #   return(
-  #     c(
-  #       'opendata', 'api', 'valores', 'climatologicos', 'mensualesanuales', 'datos',
-  #       'anioini', lubridate::year(api_options$start_date), 'aniofin', lubridate::year(api_options$end_date),
-  #       'estacion', api_options$stations[1]
-  #     )
-  #   )
-  # }
+  if (resolution %in% c('monthly', 'yearly')) {
+    # stop if stations is null. For monthly API, one and only one station must be provided
+    if (length(api_options$stations) < 1) {
+      cli::cli_abort(c(
+        "AEMET API for monthly/yearly aggregated values needs one station provided"
+      ))
+    }
+
+    # issue a warning if more than one station is provided
+    if (length(api_options$stations) > 1) {
+      cli::cli_warn(c(
+        "AEMET API for monthly/yearly aggregated values only accepts one station per query.\n",
+        "Only the first station provided ({.val {api_options$stations[1]}}) will be used."
+      ))
+    }
+
+    return(
+      c(
+        'opendata', 'api', 'valores', 'climatologicos', 'mensualesanuales', 'datos',
+        'anioini', lubridate::year(api_options$start_date), 'aniofin', lubridate::year(api_options$end_date),
+        'estacion', api_options$stations[1]
+      )
+    )
+  }
 
   # not recognised resolution
-  stop(
-    api_options$resolution,
-    " is not a valid temporal resolution for AEMET. Please see aemet_options help for more information"
-  )
+  cli::cli_abort(c(
+    "{.arg {api_options$resolution}} is not a valid temporal resolution for AEMET. Please see aemet_options help for more information"
+  ))
 }
 
 #' Check status and errors for AEMET
@@ -219,7 +225,10 @@
     if (api_status_check$code == 429) {
       return(.manage_429_errors(api_status_check, api_options, .get_info_aemet))
     } else {
-      stop(api_status_check$code, ':\n', api_status_check$message)
+      cli::cli_abort(c(
+        x = api_status_check$code,
+        i = api_status_check$message
+      ))
     }
   }
 
@@ -239,21 +248,24 @@
     if (stations_info_check$code == 429) {
       return(.manage_429_errors(api_status_check, api_options, .get_info_aemet))
     } else {
-      stop(stations_info_check$code, ':\n', stations_info_check$message)
+      cli::cli_abort(c(
+        x = stations_info_check$code,
+        i = stations_info_check$message
+      ))
     }
   }
 
   # Data transformation ----------------------------------------------------------------------------------
   # We can finally take the station info data frame and do the necessary transformations
-  stations_info_check$content %>%
-    dplyr::as_tibble() %>%
+  stations_info_check$content |>
+    dplyr::as_tibble() |>
     # add service name, to identify the data if joining with other services
-    dplyr::mutate(service = 'aemet') %>%
+    dplyr::mutate(service = 'aemet') |>
     dplyr::select(
       "service", station_id = "indicativo", station_name = "nombre",
       station_province = "provincia", altitude = "altitud", latitude = "latitud",
       longitude = "longitud"
-    ) %>%
+    ) |>
     # latitude and longitude are in strings with the cardinal letter. We need to transform that to numeric
     # and negative when S or W.
     dplyr::mutate(
@@ -261,7 +273,7 @@
       altitude = units::set_units(.data$altitude, "m"),
       latitude = .aemet_coords_generator(.data$latitude),
       longitude = .aemet_coords_generator(.data$longitude)
-    ) %>%
+    ) |>
     sf::st_as_sf(coords = c('longitude', 'latitude'), crs = 4326)
 
 }
@@ -309,7 +321,10 @@
     if (api_status_check$code == 429) {
       return(.manage_429_errors(api_status_check, api_options, .get_data_aemet))
     } else {
-      stop(api_status_check$code, ':\n', api_status_check$message)
+      cli::cli_abort(c(
+        x = api_status_check$code,
+        i = api_status_check$message
+      ))
     }
   }
 
@@ -328,7 +343,10 @@
     if (stations_data_check$code == 429) {
       return(.manage_429_errors(api_status_check, api_options, .get_data_aemet))
     } else {
-      stop(stations_data_check$code, ':\n', stations_data_check$message)
+      cli::cli_abort(c(
+        x = stations_data_check$code,
+        i = stations_data_check$message
+      ))
     }
   }
 
@@ -343,7 +361,10 @@
     if (stations_metadata_check$code == 429) {
       return(.manage_429_errors(api_status_check, api_options, .get_data_aemet))
     } else {
-      stop(stations_metadata_check$code, ':\n', stations_metadata_check$message)
+      cli::cli_abort(c(
+        x = stations_metadata_check$code,
+        i = stations_metadata_check$message
+      ))
     }
   }
   # We also need the stations info
@@ -352,12 +373,15 @@
   # Filter expression for stations ------------------------------------------------------------------------
   # In case stations were supplied, we need also to filter them
   filter_expression <- TRUE
-  # update filter if there is stations supplied
+  # update filter if there is stations supplied, but not for monthly. In monthly only one
+  # station must be used, so the filtering is unnecesary
   if (!rlang::is_null(api_options$stations)) {
     filter_expression <- switch(
       api_options$resolution,
       'current_day' = rlang::expr(.data$idema %in% api_options$stations),
-      'daily' = rlang::expr(.data$indicativo %in% api_options$stations)
+      'daily' = rlang::expr(.data$indicativo %in% api_options$stations),
+      'monthly' = TRUE,
+      'yearly' = TRUE
     )
   }
 
@@ -365,52 +389,46 @@
   # Now, current day and daily have differences, in the names of the variables and also
   # in the need to join the stations data to offer coords. We can branch the code with ifs, repeating the
   # common steps in the data carpentry or we can create the specific functions and have only one common pipe.
-  # The latter will simplify adding monthly in the future, so lets do it:
   resolution_specific_carpentry <- switch(
     api_options$resolution,
     'current_day' = .aemet_current_day_carpentry,
-    'daily' = .aemet_daily_carpentry
+    'daily' = .aemet_daily_carpentry,
+    'monthly' = .aemet_monthly_yearly_carpentry,
+    'yearly' = .aemet_monthly_yearly_carpentry
   )
 
-  # NOTE::
-  # AEMET monthly seems to be impossible to reach from R, I spent 3 days trying every option
-  # I found and nothing, so I remove it from now, to wait for a solution.
-  # NOTE: It also doesn't work with the python example in their webpage, so...
-  # I tried to communicate with them, No solution offered :(
-
   # Data transformation -----------------------------------------------------------------------------------
-  res <- stations_data_check$content %>%
-    dplyr::as_tibble() %>%
+  res <- stations_data_check$content |>
+    dplyr::as_tibble() |>
     # remove unwanted stations
-    dplyr::filter(!! filter_expression) %>%
+    dplyr::filter(!! filter_expression) |>
     # apply the resolution-specific transformations
-    resolution_specific_carpentry(stations_info) %>%
+    resolution_specific_carpentry(stations_info, resolution = api_options$resolution) |>
     # arrange data
-    dplyr::arrange(.data$timestamp, .data$station_id) %>%
+    dplyr::arrange(.data$timestamp, .data$station_id) |>
     # reorder variables to be consistent among all services
-    relocate_vars() %>%
+    relocate_vars() |>
     # ensure we have an sf
     sf::st_as_sf()
 
 
   # Check if any stations were returned -------------------------------------------------------------------
   if ((!is.null(api_options$stations)) & nrow(res) < 1) {
-    stop(
-      "Station(s) provided have no data for the dates selected.\n",
-      "Available stations with data for the actual query are:\n",
+    cli::cli_abort(c(
+      x = "Station(s) provided have no data for the dates selected.",
+      "Available stations with data for the actual query are:",
       glue::glue_collapse(
         c(unique(stations_data_check$content$indicativo), unique(stations_data_check$content$idema)),
         sep = ', ', last = ' and '
       )
-    )
+    ))
   }
 
   # Copyright message -------------------------------------------------------------------------------------
-  message(
-    copyright_style(stations_metadata_check$content$copyright),
-    '\n',
+  cli::cli_inform(c(
+    i = copyright_style(stations_metadata_check$content$copyright),
     legal_note_style(stations_metadata_check$content$notaLegal)
-  )
+  ))
 
   # Return ------------------------------------------------------------------------------------------------
   return(res)
@@ -418,9 +436,9 @@
 
 
 # resolution_specific_carpentry -------------------------------------------------------------------------
-.aemet_current_day_carpentry <- function(data, stations_info) {
-  data %>%
-    dplyr::select(
+.aemet_current_day_carpentry <- function(data, stations_info, ...) {
+  data |>
+    dplyr::select(dplyr::any_of(c(
       timestamp = "fint", station_id = "idema", station_name = "ubi",
       altitude = "alt",
       temperature = "ta",
@@ -430,8 +448,16 @@
       precipitation = "prec",
       wind_speed = "vv",
       wind_direction = "dv",
-      longitude = "lon", latitude = "lat",
-    ) %>%
+      insolation = "inso",
+      longitude = "lon", latitude = "lat"
+    ))) |>
+    # create any variable missing
+    .create_missing_vars(
+      var_names = c(
+        "temperature", "min_temperature", "max_temperature", "relative_humidity",
+        "precipitation", "wind_speed", "wind_direction", "insolation"
+      )
+    ) |>
     # units
     dplyr::mutate(
       service = 'aemet',
@@ -443,14 +469,16 @@
       relative_humidity = units::set_units(.data$relative_humidity, "%"),
       precipitation = units::set_units(.data$precipitation, "L/m^2"),
       wind_speed = units::set_units(.data$wind_speed, "m/s"),
-      wind_direction = units::set_units(.data$wind_direction, "degree")
-    ) %>%
-    dplyr::left_join(stations_info, by = c('service', 'station_id', 'station_name', 'altitude')) %>%
+      wind_direction = units::set_units(.data$wind_direction, "degree"),
+      insolation = units::set_units(.data$insolation, "hours")
+    ) |>
+    dplyr::left_join(stations_info, by = c('service', 'station_id', 'station_name', 'altitude')) |>
     sf::st_as_sf(coords = c('longitude', 'latitude'), crs = 4326)
 }
-.aemet_daily_carpentry <- function(data, stations_info) {
-  data %>%
-    dplyr::select(
+
+.aemet_daily_carpentry <- function(data, stations_info, ...) {
+  data |>
+    dplyr::select(dplyr::any_of(c(
       timestamp = "fecha",
       station_id = "indicativo", station_name = "nombre", station_province = "provincia",
       mean_temperature = "tmed",
@@ -460,7 +488,14 @@
       mean_wind_speed = "velmedia",
       # wind_direction = "dir",
       insolation = "sol"
-    ) %>%
+    ))) |>
+    # create any variable missing
+    .create_missing_vars(
+      var_names = c(
+        "mean_temperature", "min_temperature", "max_temperature",
+        "precipitation", "mean_wind_speed", "insolation"
+      )
+    ) |>
     # variables are characters, with "," as decimal point, so....
     dplyr::mutate(
       service = 'aemet',
@@ -480,6 +515,79 @@
       mean_wind_speed = units::set_units(.data$mean_wind_speed, "m/s"),
       # wind_direction = units::set_units(.data$wind_direction, degree),
       insolation = units::set_units(.data$insolation, "h")
-    ) %>%
+    ) |>
     dplyr::left_join(stations_info, by = c('service', 'station_id', 'station_name', 'station_province'))
+}
+
+.aemet_monthly_yearly_carpentry <- function(data, stations_info, resolution) {
+
+  # resolution depending negate argument
+  negate_filter <- FALSE
+  if (resolution == "monthly") {
+    negate_filter <- TRUE
+  }
+  # data carpentry
+  data |>
+    dplyr::select(dplyr::any_of(c(
+          timestamp = "fecha",
+          station_id = "indicativo",
+          # temperatures
+          mean_temperature = "tm_mes",
+          mean_min_temperature = "tm_min",
+          mean_max_temperature = "tm_max",
+          # rh
+          mean_relative_humidity = "hr",
+          # precipitation
+          total_precipitation = "p_mes",
+          days_precipitation = "np_001",
+          # wind
+          mean_wind_speed = "w_med",
+          # radiation
+          mean_insolation = "inso",
+          mean_global_radiation = "glo"
+    ))) |>
+    # remove yearly or monthly values, depending on resolution
+    dplyr::filter(
+      stringr::str_detect(.data$timestamp, "-13", negate = negate_filter)
+    ) |>
+    # remove any "-13" for yearly values (if monthly, this step dont do anything), for
+    # the timestamp parsing to work
+    dplyr::mutate(
+      timestamp = stringr::str_remove(.data$timestamp, "-13")
+    ) |>
+    # create any variable missing
+    .create_missing_vars(
+      var_names = c(
+        "mean_temperature", "mean_min_temperature", "mean_max_temperature",
+        "mean_relative_humidity", "total_precipitation", "days_precipitation",
+        "mean_wind_speed", "mean_insolation", "mean_global_radiation"
+      )
+    ) |>
+    # timestamp has to be parsed, "ym" for monthly values, "y" for yearly, and
+    # variables are characters, with "," as decimal point, so....
+    dplyr::mutate(
+      service = 'aemet',
+      timestamp = lubridate::parse_date_time(.data$timestamp, orders = c("ym", "y")),
+      mean_temperature = as.numeric(stringr::str_replace_all(.data$mean_temperature, ',', '.')),
+      mean_min_temperature = as.numeric(stringr::str_replace_all(.data$mean_min_temperature, ',', '.')),
+      mean_max_temperature = as.numeric(stringr::str_replace_all(.data$mean_max_temperature, ',', '.')),
+      total_precipitation = suppressWarnings(as.numeric(stringr::str_replace_all(.data$total_precipitation, ',', '.'))),
+      mean_wind_speed = as.numeric(stringr::str_replace_all(.data$mean_wind_speed, ',', '.')),
+      mean_relative_humidity = as.numeric(stringr::str_replace_all(.data$mean_relative_humidity, ',', '.')),
+      days_precipitation = as.numeric(stringr::str_replace_all(.data$days_precipitation, ',', '.')),
+      mean_insolation = as.numeric(stringr::str_replace_all(.data$mean_insolation, ',', '.')),
+      # global radiation is in 10*kJ/m2, so we multiply by 10 to set the units later to kJ/m2
+      mean_global_radiation = 10*as.numeric(stringr::str_replace_all(.data$mean_global_radiation, ',', '.')),
+      # and set the units also
+      mean_temperature = units::set_units(.data$mean_temperature, "degree_C"),
+      mean_min_temperature = units::set_units(.data$mean_min_temperature, "degree_C"),
+      mean_max_temperature = units::set_units(.data$mean_max_temperature, "degree_C"),
+      total_precipitation = units::set_units(.data$total_precipitation, "L/m^2"),
+      mean_wind_speed = units::set_units(.data$mean_wind_speed, "km/h"),
+      mean_relative_humidity = units::set_units(.data$mean_relative_humidity, "%"),
+      days_precipitation = units::set_units(.data$days_precipitation, "days"),
+      mean_insolation = units::set_units(.data$mean_insolation, "hours"),
+      mean_global_radiation = units::set_units(.data$mean_global_radiation, "kJ/m^2")
+    ) |>
+    dplyr::left_join(stations_info, by = c('service', 'station_id'))
 }

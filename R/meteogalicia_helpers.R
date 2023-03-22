@@ -10,34 +10,23 @@
   # we need the resolution to create the corresponding path
   resolution <- api_options$resolution
 
-  ## TODO Maybe a switch here is more efficient, but we have to control for non recognised resolution.
-  ## Worth to check it some time.
-
-  # instant
-  if (resolution == 'instant') {
-    return(c('mgrss', 'observacion', 'ultimos10minEstacionsMeteo.action'))
-  }
-
-  # current day
-  if (resolution == 'current_day') {
-    return(c('mgrss', 'observacion', 'ultimosHorariosEstacions.action'))
-  }
-
-  # daily
-  if (resolution == 'daily') {
-    return(c('mgrss', 'observacion', 'datosDiariosEstacionsMeteo.action'))
-  }
-
-  # monthly
-  if (resolution == 'monthly') {
-    return(c('mgrss', 'observacion', 'datosMensuaisEstacionsMeteo.action'))
-  }
-
-  # not recognised resolution
-  stop(
-    api_options$resolution,
-    " is not a valid temporal resolution for MeteoGalicia. Please see meteogalicia_options help for more information"
+  temp_path <- switch(
+    resolution,
+    "instant" = c('mgrss', 'observacion', 'ultimos10minEstacionsMeteo.action'),
+    "current_day" = c('mgrss', 'observacion', 'ultimosHorariosEstacions.action'),
+    "daily" = c('mgrss', 'observacion', 'datosDiariosEstacionsMeteo.action'),
+    "monthly" = c('mgrss', 'observacion', 'datosMensuaisEstacionsMeteo.action'),
+    FALSE
   )
+
+  # not recognised resolution, we abort
+  if (isFALSE(temp_path)) {
+    cli::cli_abort(c(
+      "{.arg {api_options$resolution}} is not a valid temporal resolution for MeteoGalicia. Please see meteogalicia_options help for more information"
+    ))
+  }
+
+  return(temp_path)
 }
 
 #' Create the query element for MeteoGalicia API
@@ -118,7 +107,9 @@
 
   # Status check ------------------------------------------------------------------------------------------
   if (api_response$status_code != 200) {
-    stop("Unable to connect to meteogalicia API at ", api_response$url)
+    cli::cli_abort(c(
+      "Unable to connect to meteogalicia API at {.url {api_response$url}}"
+    ))
   }
 
 
@@ -127,18 +118,18 @@
 
   # Meteogalicia returns a list, with one element called listaEstacionsMeteo, that is parsed directly to
   # a data.frame with all the info. We work with that.
-  response_content$listaEstacionsMeteo %>%
-    dplyr::as_tibble() %>%
-    dplyr::mutate(service = 'meteogalicia') %>%
-    .info_table_checker() %>%
+  response_content$listaEstacionsMeteo |>
+    dplyr::as_tibble() |>
+    dplyr::mutate(service = 'meteogalicia') |>
+    .info_table_checker() |>
     dplyr::select(
       "service", station_id = "idEstacion", station_name = "estacion", station_province = "provincia",
       "altitude", "lat", "lon"
-    ) %>%
+    ) |>
     dplyr::mutate(
       station_id = as.character(.data$station_id),
       altitude = units::set_units(.data$altitude, "m")
-    ) %>%
+    ) |>
     sf::st_as_sf(coords = c('lon', 'lat'), crs = 4326)
 
 }
@@ -174,40 +165,42 @@
 
   # Status check ------------------------------------------------------------------------------------------
   # bad stations return code 500
-  if (api_response$status_code == 500L) {
-    stop(
-      "MeteoGalicia API returned an error:\n",
+  if (api_response$status_code %in% c(500L, 404L)) {
+    cli::cli_abort(c(
+      "MeteoGalicia API returned an error:",
       stringr::str_remove_all(
         httr::content(api_response, 'text'),
         '<.*?>|\\t|\\n|<!DOCTYPE((.|\n|\r)*?)(\"|])>'
       ),
-      '\nThis usually happens when unknown station ids are supplied.'
-    )
+      i = 'This usually happens when unknown station ids are supplied.'
+    ))
   }
   # check any other codes besides 200
   if (api_response$status_code != 200) {
-    stop("Unable to connect to meteogalicia API at ", api_response$url)
+    cli::cli_abort(c(
+      "Unable to connect to meteogalicia API at {.url {api_response$url}}"
+    ))
   }
   # Check when html with error is returned (bad stations)
   # LEGACY, bad stations now are reported with error 500 in the new meteogalicia API
   if (httr::http_type(api_response) != "application/json") {
-    stop(
-      "MeteoGalicia API returned an error:\n",
+    cli::cli_abort(c(
+      "MeteoGalicia API returned an error:",
       stringr::str_remove_all(
         httr::content(api_response, 'text'),
         '<.*?>|\\t|\\n|<!DOCTYPE((.|\n|\r)*?)(\"|])>'
       ),
-      '\nThis usually happens when unknown station ids are supplied.'
-    )
+      i = 'This usually happens when unknown station ids are supplied.'
+    ))
   }
   # response content
   response_content <- jsonlite::fromJSON(httr::content(api_response, as = 'text'))
   # Check when empty lists are returned (bad dates)
   if (length(response_content[[1]]) < 1) {
-    stop(
+    cli::cli_abort(c(
       "MeteoGalicia API returned no data:\n",
-      "This usually happens when there is no data for the dates supplied."
-    )
+      i = "This usually happens when there is no data for the dates supplied."
+    ))
   }
 
   # Resolution specific carpentry -------------------------------------------------------------------------
@@ -235,37 +228,34 @@
 
   # Data transformation -----------------------------------------------------------------------------------
   res <-
-    resolution_specific_unnesting(response_content) %>%
+    resolution_specific_unnesting(response_content) |>
     # final unnest, common to all resolutions
-    unnest_safe("listaMedidas") %>%
+    unnest_safe("listaMedidas") |>
     # remove the non valid data (0 == no validated data, 3 = wrong data, 9 = data not registered)
-    dplyr::filter(!.data$lnCodigoValidacion %in% c(0, 3, 9)) %>%
+    dplyr::filter(!.data$lnCodigoValidacion %in% c(0, 3, 9)) |>
     # remove unwanted variables
-    dplyr::select(-"lnCodigoValidacion", -"nomeParametro", -"unidade") %>%
+    dplyr::select(-"lnCodigoValidacion", -"nomeParametro", -"unidade") |>
     # now, some stations can have errors in the sense of duplicated precipitation values.
     # We get the first record
     tidyr::pivot_wider(
       names_from = "codigoParametro", values_from = "valor", values_fn = dplyr::first
-    ) %>%
+    ) |>
     # resolution-specific transformations
-    resolution_specific_carpentry() %>%
-    dplyr::arrange(.data$timestamp, .data$station_id) %>%
-    dplyr::left_join(.get_info_meteogalicia(), by = resolution_specific_joinvars) %>%
+    resolution_specific_carpentry() |>
+    dplyr::arrange(.data$timestamp, .data$station_id) |>
+    dplyr::left_join(.get_info_meteogalicia(), by = resolution_specific_joinvars) |>
     # reorder variables to be consistent among all services
-    relocate_vars() %>%
+    relocate_vars() |>
     sf::st_as_sf()
 
   # Copyright message -------------------------------------------------------------------------------------
-  message(
-    copyright_style(
-      "A informaci\u00F3n divulgada a trav\u00E9s deste servidor ofr\u00E9cese gratuitamente aos cidad\u00E1ns para que poida ser",
-      "\nutilizada libremente por eles, co \u00FAnico compromiso de mencionar expresamente a MeteoGalicia e \u00E1",
-      "\nConseller\u00EDa de Medio Ambiente, Territorio e Vivenda da Xunta de Galicia como fonte da mesma cada vez",
-      "\nque as utilice para os usos distintos do particular e privado."
-    ),
-    '\n',
+  cli::cli_inform(c(
+    i = copyright_style("A informaci\u00F3n divulgada a trav\u00E9s deste servidor ofr\u00E9cese gratuitamente aos cidad\u00E1ns para que poida ser"),
+    copyright_style("utilizada libremente por eles, co \u00FAnico compromiso de mencionar expresamente a MeteoGalicia e \u00E1"),
+    copyright_style("Conseller\u00EDa de Medio Ambiente, Territorio e Vivenda da Xunta de Galicia como fonte da mesma cada vez"),
+    copyright_style("que as utilice para os usos distintos do particular e privado."),
     legal_note_style("https://www.meteogalicia.gal/web/informacion/notaIndex.action")
-  )
+  ))
 
   return(res)
 }
@@ -277,21 +267,21 @@
 }
 
 .meteogalicia_current_day_unnesting <- function(response_content) {
-  res <- response_content$listHorarios %>%
+  res <- response_content$listHorarios |>
     unnest_safe("listaInstantes")
 
   return(res)
 }
 
 .meteogalicia_daily_unnesting <- function(response_content) {
-  res <- response_content$listDatosDiarios %>%
+  res <- response_content$listDatosDiarios |>
     unnest_safe("listaEstacions")
 
   return(res)
 }
 
 .meteogalicia_monthly_unnesting <- function(response_content) {
-  res <- response_content$listDatosMensuais %>%
+  res <- response_content$listDatosMensuais |>
     unnest_safe("listaEstacions")
 
   return(res)
@@ -301,7 +291,7 @@
 # resolution_specific_carpentry -------------------------------------------------------------------------
 
 .meteogalicia_instant_carpentry <- function(data) {
-  data %>%
+  data |>
     # When querying stations, it can happen that some stations lack some variables, making the further
     # select step to fail. We create missing variables and populate them with NAs to avoid this error
     .create_missing_vars(
@@ -309,7 +299,7 @@
         'TA_AVG_1.5m', 'DV_AVG_2m', 'VV_AVG_2m', 'HR_AVG_1.5m',
         'PP_SUM_1.5m', 'HSOL_SUM_1.5m', 'RS_AVG_1.5m'
       )
-    ) %>%
+    ) |>
     dplyr::select(
       timestamp = "instanteLecturaUTC", station_id = "idEstacion", station_name = "estacion",
       temperature = "TA_AVG_1.5m",
@@ -319,7 +309,7 @@
       precipitation = "PP_SUM_1.5m",
       insolation = "HSOL_SUM_1.5m"
       # global_solar_radiation = "RS_AVG_1.5m"
-    ) %>%
+    ) |>
     dplyr::mutate(
       timestamp = lubridate::as_datetime(.data$timestamp),
       service = 'meteogalicia',
@@ -336,7 +326,7 @@
     )
 }
 .meteogalicia_current_day_carpentry <- function(data) {
-  data %>%
+  data |>
     # When querying stations, it can happen that some stations lack some variables, making the further
     # select step to fail. We create missing variables and populate them with NAs to avoid this error
     .create_missing_vars(
@@ -344,7 +334,7 @@
         'TA_AVG_1.5m', 'TA_MIN_1.5m', 'TA_MAX_1.5m', 'DV_AVG_2m', 'VV_AVG_2m',
         'HR_AVG_1.5m', 'PP_SUM_1.5m', 'HSOL_SUM_1.5m'
       )
-    ) %>%
+    ) |>
     dplyr::select(
       timestamp = "instanteLecturaUTC", station_id = "idEstacion", station_name = "estacion",
       temperature = "TA_AVG_1.5m",
@@ -355,7 +345,7 @@
       relative_humidity = "HR_AVG_1.5m",
       precipitation = "PP_SUM_1.5m",
       insolation = "HSOL_SUM_1.5m"
-    ) %>%
+    ) |>
     dplyr::mutate(
       timestamp = lubridate::as_datetime(.data$timestamp),
       service = 'meteogalicia',
@@ -371,7 +361,7 @@
     )
 }
 .meteogalicia_daily_carpentry <- function(data) {
-  data %>%
+  data |>
     # When querying stations, it can happen that some stations lack some variables, making the further
     # select step to fail. We create missing variables and populate them with NAs to avoid this error
     .create_missing_vars(
@@ -379,7 +369,7 @@
         'TA_AVG_1.5m', 'TA_MIN_1.5m', 'TA_MAX_1.5m', 'DV_AVG_2m', 'VV_AVG_2m',
         'HR_AVG_1.5m', 'HR_MIN_1.5m', 'HR_MAX_1.5m', 'PP_SUM_1.5m', 'HSOL_SUM_1.5m'
       )
-    ) %>%
+    ) |>
     dplyr::select(
       timestamp = "data",
       station_id = "idEstacion", station_name = "estacion", station_province = "provincia",
@@ -393,7 +383,7 @@
       max_relative_humidity = "HR_MAX_1.5m",
       precipitation = "PP_SUM_1.5m",
       insolation = "HSOL_SUM_1.5m"
-    ) %>%
+    ) |>
     dplyr::mutate(
       timestamp = lubridate::as_datetime(.data$timestamp),
       service = 'meteogalicia',
@@ -411,7 +401,7 @@
     )
 }
 .meteogalicia_monthly_carpentry <- function(data) {
-  data %>%
+  data |>
     # When querying stations, it can happen that some stations lack some variables, making the further
     # select step to fail. We create missing variables and populate them with NAs to avoid this error
     .create_missing_vars(
@@ -419,7 +409,7 @@
         'TA_AVG_1.5m', 'TA_MIN_1.5m', 'TA_MAX_1.5m', 'VV_AVG_2m',
         'HR_AVG_1.5m', 'PP_SUM_1.5m', 'HSOL_SUM_1.5m'
       )
-    ) %>%
+    ) |>
     dplyr::select(
       timestamp = "data",
       station_id = "idEstacion", station_name = "estacion", station_province = "provincia",
@@ -430,7 +420,7 @@
       mean_relative_humidity = "HR_AVG_1.5m",
       precipitation = "PP_SUM_1.5m",
       insolation = "HSOL_SUM_1.5m"
-    ) %>%
+    ) |>
     dplyr::mutate(
       timestamp = lubridate::as_datetime(.data$timestamp),
       service = 'meteogalicia',
@@ -454,8 +444,9 @@
   names_ok <- mandatory_names %in% names(data)
 
   if (!all(names_ok)) {
-    stop(glue::glue(
-      "Oops, something went wrong and some info about stations is missing: {glue::glue_collapse(mandatory_names[names_ok], sep = ', )}"
+    cli::cli_abort(c(
+      x = "Oops, something went wrong and some info about stations is missing:",
+      mandatory_names[names_ok]
     ))
   }
 

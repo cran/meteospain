@@ -11,10 +11,9 @@
 
   # not recognised resolution
   if (api_options$resolution != 'current_day') {
-    stop(
-      api_options$resolution,
-      " is not a valid temporal resolution for Meteoclimatic. Please see meteoclimatic_options help for more information"
-    )
+    cli::cli_abort(c(
+      "{.arg {api_options$resolution}} is not a valid temporal resolution for Meteoclimatic. Please see meteoclimatic_options help for more information"
+    ))
   }
 
   return(meteoclimatic_path)
@@ -39,7 +38,7 @@
     station_name = xml2::xml_text(xml2::xml_find_all(raw_station_info, '//item/title')),
     lat = xml2::xml_double(xml2::xml_find_all(raw_station_info, '//item/geo:Point/geo:lat')),
     long = xml2::xml_double(xml2::xml_find_all(raw_station_info, '//item/geo:Point/geo:long'))
-  ) %>%
+  ) |>
     sf::st_as_sf(coords = c('long', 'lat'), crs = 4326)
 
   return(res)
@@ -66,15 +65,17 @@
   nodes <- xml2::xml_path(xml2::xml_find_all(data_xml_body, '//meteodata/stations/station'))
   # but before start iterating, if station code is wrong, no nodes are returned, so we need to check that
   if (length(nodes) < 1) {
-    stop(
-      'Stations code provided ("', api_options$stations, '") not found in Meteoclimatic database.\n',
-      "See https://www.meteoclimatic.net/index/wp/rss_es.html for more info"
-    )
+    cli::cli_abort(c(
+      'Stations code provided',
+      api_options$stations,
+      'not found in Meteoclimatic database.',
+      i = "See https://www.meteoclimatic.net/index/wp/rss_es.html for more info"
+    ))
   }
 
   # Now we can iterate and get the data
   stations_data <-
-    nodes %>%
+    nodes |>
     purrr::map(
       \(.x) {
         dplyr::tibble(
@@ -103,52 +104,28 @@
           )
         )
       }
-      # ~ dplyr::tibble(
-      #   service = 'meteoclimatic',
-      #   timestamp = lubridate::parse_date_time(
-      #     xml2::xml_text(xml2::xml_find_first(data_xml_body, paste0(.x, '/pubDate'))),
-      #     orders = 'dbYHMSz'
-      #   ),
-      #   station_id = xml2::xml_text(
-      #     xml2::xml_find_first(data_xml_body, paste0(.x, '/id'))
-      #   ),
-      #   max_temperature = xml2::xml_double(
-      #     (xml2::xml_find_first(data_xml_body, paste0(.x, '/stationdata/temperature/max')))
-      #   ),
-      #   min_temperature = xml2::xml_double(
-      #     (xml2::xml_find_first(data_xml_body, paste0(.x, '/stationdata/temperature/min')))
-      #   ),
-      #   max_relative_humidity = xml2::xml_double(
-      #     (xml2::xml_find_first(data_xml_body, paste0(.x, '/stationdata/humidity/max')))
-      #   ),
-      #   min_relative_humidity = xml2::xml_double(
-      #     (xml2::xml_find_first(data_xml_body, paste0(.x, '/stationdata/humidity/min')))
-      #   ),
-      #   precipitation = xml2::xml_double(
-      #     (xml2::xml_find_first(data_xml_body, paste0(.x, '/stationdata/rain/total')))
-      #   )
-      # )
-    ) %>%
-    purrr::list_rbind() %>%
-    dplyr::left_join(.get_info_meteoclimatic(api_options), by = c('service', 'station_id')) %>%
-    dplyr::select("timestamp", "station_id", "station_name", dplyr::everything()) %>%
+    ) |>
+    purrr::list_rbind() |>
+    dplyr::left_join(.get_info_meteoclimatic(api_options), by = c('service', 'station_id')) |>
+    dplyr::select("timestamp", "station_id", "station_name", dplyr::everything()) |>
     dplyr::mutate(
       max_temperature = units::set_units(.data$max_temperature, "degree_C"),
       min_temperature = units::set_units(.data$min_temperature, "degree_C"),
       max_relative_humidity = units::set_units(.data$max_relative_humidity, "%"),
       min_relative_humidity = units::set_units(.data$min_relative_humidity, "%"),
       precipitation = units::set_units(.data$precipitation, "L/m^2")
-    ) %>%
-    dplyr::arrange(.data$timestamp, .data$station_id) %>%
+    ) |>
+    dplyr::arrange(.data$timestamp, .data$station_id) |>
     # reorder variables to be consistent among all services
-    relocate_vars() %>%
+    relocate_vars() |>
     sf::st_as_sf(crs = 4326)
 
-  message(
-    copyright_style("Meteoclimatic is a non-professional network of automatic meteorological stations.\n"),
-    copyright_style("No quality check is performed in this data, and errors in measures or coordinates of stations can be present.\n"),
+  # Copyright message -------------------------------------------------------------------------------------
+  cli::cli_inform(c(
+    i = copyright_style("Meteoclimatic is a non-professional network of automatic meteorological stations."),
+    copyright_style("No quality check is performed in this data, and errors in measures or coordinates of stations can be present."),
     legal_note_style("https://www.meteoclimatic.net/index")
-  )
+  ))
 
   return(stations_data)
 }

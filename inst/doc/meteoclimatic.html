@@ -384,13 +384,13 @@ one.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>current_day_barcelona <span class="ot">&lt;-</span> <span class="fu">get_meteo_from</span>(<span class="st">&#39;meteoclimatic&#39;</span>, <span class="at">options =</span> api_options)</span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>current_day_barcelona</span></code></pre></div>
 <p>Visually:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>current_day_barcelona <span class="sc">%&gt;%</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  units<span class="sc">::</span><span class="fu">drop_units</span>() <span class="sc">%&gt;%</span></span>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>current_day_barcelona <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  units<span class="sc">::</span><span class="fu">drop_units</span>() <span class="sc">|&gt;</span></span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">colour =</span> max_temperature)) <span class="sc">+</span></span>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="fu">scale_colour_viridis_c</span>()</span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>current_day_barcelona <span class="sc">%&gt;%</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>current_day_barcelona <span class="sc">|&gt;</span></span>
 <span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
 <span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x =</span> max_relative_humidity))</span></code></pre></div>
 </div>

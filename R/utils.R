@@ -1,20 +1,15 @@
 # imports from other packages ---------------------------------------------------------------------------
 
-#' @importFrom magrittr %>%
-#' @export
-magrittr::`%>%`
-
 #' @importFrom rlang := .data
 NULL
 
 
-# crayon styles -----------------------------------------------------------------------------------------
+# cli styles -----------------------------------------------------------------------------------------
 
-#' crayon styles to use
-#' @importFrom  crayon combine_styles
+#' cli styles to use
 #' @noRd
-copyright_style <- crayon::combine_styles('bold', 'yellow')
-legal_note_style <- crayon::combine_styles('blue', 'bold', 'underline')
+copyright_style <- cli::combine_ansi_styles('bold', 'yellow')
+legal_note_style <- cli::combine_ansi_styles('blue', 'underline')
 
 
 # swiss knives ------------------------------------------------------------------------------------------
@@ -99,7 +94,7 @@ legal_note_style <- crayon::combine_styles('blue', 'bold', 'underline')
 #' Relocate all vars in the same way for any service/resolution combination
 #' @noRd
 relocate_vars <- function(data) {
-  data %>%
+  data |>
     dplyr::relocate(
       dplyr::matches('timestamp'),
       dplyr::matches('service'),
@@ -125,13 +120,13 @@ relocate_vars <- function(data) {
   if (stringr::str_detect(station_url, 'mensuales')) {
     parts <- stringr::str_remove_all(
       station_url, 'https://www.juntadeandalucia.es/agriculturaypesca/ifapa/riaws/datosmensuales/'
-    ) %>%
+    ) |>
       stringr::str_split('/', n = 3, simplify = TRUE)
     return(glue::glue("{parts[,1]}-{parts[,2]}"))
   } else {
     parts <- stringr::str_remove_all(
       station_url, 'https://www.juntadeandalucia.es/agriculturaypesca/ifapa/riaws/datosdiarios/forceEt0/'
-    ) %>%
+    ) |>
       stringr::str_split('/', n = 3, simplify = TRUE)
     return(glue::glue("{parts[,1]}-{parts[,2]}"))
   }
@@ -146,13 +141,18 @@ relocate_vars <- function(data) {
   # For that we use api_options$while_number. If it is null or less than one repeat,
   # if not, stop
   while (is.null(api_options$while_number) || api_options$while_number < 1) {
-    message(copyright_style(api_status_check$message))
-    message("Trying again in 60 seconds")
+    cli::cli_inform(c(
+      i = copyright_style(api_status_check$message),
+      "Trying again in 60 seconds"
+    ))
     Sys.sleep(60)
     api_options$while_number <- 1
     return(.f(api_options))
   }
-  stop(api_status_check$code, ':\n', api_status_check$message)
+  cli::cli_abort(c(
+    x = api_status_check$code,
+    i = api_status_check$message
+  ))
 }
 
 .aemet_coords_generator <- function(coord_vec) {
@@ -181,8 +181,11 @@ unnest_safe <- function(x, ...) {
     # variables) is maintained as list() instead of NULL. So if is an empty
     # list, return tibble(), if is a list not empty, issue a warning
     if (length(x) > 0) {
-      warning(glue::glue(
-        "Something went wrong, no data.frame returned, but a list with the following names {names(x)} and the following contents {glue::glue_collapse(x, sep = '\n')}\n Returning an empty data.frame"
+      cli::cli_warn(c(
+        "Something went wrong, no data.frame returned, but a list with the following names",
+        names(x),
+        "and the following contents {glue::glue_collapse(x, sep = '\n')}",
+        "Returning an empty data.frame"
       ))
     }
 
@@ -212,7 +215,9 @@ skip_if_no_auth <- function(service) {
   if (identical(Sys.getenv(service), "")) {
     testthat::skip(glue::glue("No authentication available for {service}"))
   } else {
-    message(glue::glue("{service} key found, running tests"))
+    cli::cli_inform(c(
+      i = "{.arg {service}} key found, running tests"
+    ))
   }
 }
 
@@ -225,7 +230,7 @@ main_test_battery <- function(test_object, ...) {
   # has data, more than zero rows
   testthat::expect_true(nrow(test_object) > 0)
   # has expected names
-  testthat::expect_named(test_object, rlang::eval_tidy(args$expected_names))
+  testthat::expect_named(test_object, rlang::eval_tidy(args$expected_names), ignore.order = TRUE)
   # has the correct service value
   testthat::expect_identical(unique(test_object$service), rlang::eval_tidy(args$service))
 
@@ -298,10 +303,10 @@ safe_api_access <- function(type = c('rest', 'xml'), ...) {
   # checks and errors
   if (is.null(response$result)) {
     din_dots <- rlang::list2(...)
-    stop(
-      glue::glue("Unable to connect to API at {din_dots[[1]]}: {response$error}\n"),
-      glue::glue("This usually happens when connection with {din_dots[[1]]} is not possible")
-    )
+    cli::cli_abort(c(
+      "Unable to connect to API at {.url {din_dots[[1]]}}: {.val {response$error}}",
+      i = "This usually happens when connection with {.url {din_dots[[1]]}} is not possible."
+    ))
   }
 
   return(response$result)
