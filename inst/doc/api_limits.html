@@ -49,7 +49,7 @@ overflow: visible;
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -358,18 +358,26 @@ and yearly data to 3 years:</p>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>    <span class="at">end_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;1990-12-31&#39;</span>)</span>
 <span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  )</span>
 <span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>)</span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co"># and monthly and yearly data to 3 years</span></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="fu">get_meteo_from</span>(</span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="st">&#39;aemet&#39;</span>,</span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  <span class="fu">aemet_options</span>(</span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>    <span class="at">api_key =</span> keyring<span class="sc">::</span><span class="fu">key_get</span>(<span class="st">&#39;aemet&#39;</span>),</span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>    <span class="at">resolution =</span> <span class="st">&#39;yearly&#39;</span>,</span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>    <span class="at">start_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;2005-01-01&#39;</span>),</span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>    <span class="at">end_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;2020-12-31&#39;</span>),</span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>    <span class="at">stations =</span> <span class="st">&quot;0149X&quot;</span></span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>  )</span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>)</span></code></pre></div>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; Error in `api_function()`:</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; ✖ 404</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; ℹ AEMET API returned no data: El rango de fechas no puede ser superior a 31</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt;   dias</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co"># and monthly and yearly data to 3 years</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="fu">get_meteo_from</span>(</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  <span class="st">&#39;aemet&#39;</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  <span class="fu">aemet_options</span>(</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>    <span class="at">api_key =</span> keyring<span class="sc">::</span><span class="fu">key_get</span>(<span class="st">&#39;aemet&#39;</span>),</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>    <span class="at">resolution =</span> <span class="st">&#39;yearly&#39;</span>,</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>    <span class="at">start_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;2005-01-01&#39;</span>),</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>    <span class="at">end_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;2020-12-31&#39;</span>),</span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>    <span class="at">stations =</span> <span class="st">&quot;0149X&quot;</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>  )</span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a>)</span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; Error in `api_function()`:</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt; ✖ 404</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; ℹ AEMET API returned no data: El rango de las fechas no puede ser superior a 36</span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt;   mesess</span></span></code></pre></div>
 <p>This means that with one call to <code>get_meteo_from</code> to the
 AEMET service, one can only download 31 days of data, (or 3 years in
 monthly and yearly data).<br />
@@ -384,19 +392,47 @@ the calls necessary and join the results:</p>
 <span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>    <span class="at">end_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;1990-01-31&#39;</span>)</span>
 <span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  )</span>
 <span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>)</span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>res_1990_feb <span class="ot">&lt;-</span> <span class="fu">get_meteo_from</span>(</span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>  <span class="st">&#39;aemet&#39;</span>,</span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  <span class="fu">aemet_options</span>(</span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>    <span class="at">api_key =</span> keyring<span class="sc">::</span><span class="fu">key_get</span>(<span class="st">&#39;aemet&#39;</span>),</span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>    <span class="at">resolution =</span> <span class="st">&#39;daily&#39;</span>,</span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>    <span class="at">start_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;1990-02-01&#39;</span>),</span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>    <span class="at">end_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;1990-02-28&#39;</span>)</span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>  )</span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>)</span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a></span>
-<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">rbind</span>(res_1990_jan, res_1990_feb)</span>
-<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>res</span></code></pre></div>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; ℹ © AEMET. Autorizado el uso de la información y su reproducción citando a</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt;   AEMET como autora de la misma.</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; https://www.aemet.es/es/nota_legal</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>res_1990_feb <span class="ot">&lt;-</span> <span class="fu">get_meteo_from</span>(</span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>  <span class="st">&#39;aemet&#39;</span>,</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>  <span class="fu">aemet_options</span>(</span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>    <span class="at">api_key =</span> keyring<span class="sc">::</span><span class="fu">key_get</span>(<span class="st">&#39;aemet&#39;</span>),</span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>    <span class="at">resolution =</span> <span class="st">&#39;daily&#39;</span>,</span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>    <span class="at">start_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;1990-02-01&#39;</span>),</span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>    <span class="at">end_date =</span> <span class="fu">as.Date</span>(<span class="st">&#39;1990-02-28&#39;</span>)</span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>  )</span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>)</span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt; ℹ © AEMET. Autorizado el uso de la información y su reproducción citando a</span></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt;   AEMET como autora de la misma.</span></span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt; https://www.aemet.es/es/nota_legal</span></span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">rbind</span>(res_1990_jan, res_1990_feb)</span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a>res</span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 7015 features and 12 fields</span></span>
+<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a><span class="co">#&gt; Geometry type: POINT</span></span>
+<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a><span class="co">#&gt; Dimension:     XY</span></span>
+<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a><span class="co">#&gt; Bounding box:  xmin: -17.88889 ymin: 27.81889 xmax: 4.215556 ymax: 43.56694</span></span>
+<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a><span class="co">#&gt; Geodetic CRS:  WGS 84</span></span>
+<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a><span class="co">#&gt; # A tibble: 7,015 × 13</span></span>
+<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a><span class="co">#&gt;    timestamp           service station_id station_name station_province altitude</span></span>
+<span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a><span class="co">#&gt;  * &lt;dttm&gt;              &lt;chr&gt;   &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;                 [m]</span></span>
+<span id="cb3-37"><a href="#cb3-37" tabindex="-1"></a><span class="co">#&gt;  1 1990-01-01 00:00:00 aemet   0002I      &quot;VANDELLÒS … TARRAGONA              32</span></span>
+<span id="cb3-38"><a href="#cb3-38" tabindex="-1"></a><span class="co">#&gt;  2 1990-01-01 00:00:00 aemet   0016A      &quot;REUS AEROP… TARRAGONA              71</span></span>
+<span id="cb3-39"><a href="#cb3-39" tabindex="-1"></a><span class="co">#&gt;  3 1990-01-01 00:00:00 aemet   0076       &quot;BARCELONA … BARCELONA               4</span></span>
+<span id="cb3-40"><a href="#cb3-40" tabindex="-1"></a><span class="co">#&gt;  4 1990-01-01 00:00:00 aemet   0200E      &quot;BARCELONA,… BARCELONA             408</span></span>
+<span id="cb3-41"><a href="#cb3-41" tabindex="-1"></a><span class="co">#&gt;  5 1990-01-01 00:00:00 aemet   0229I      &quot;SABADELL A… BARCELONA             146</span></span>
+<span id="cb3-42"><a href="#cb3-42" tabindex="-1"></a><span class="co">#&gt;  6 1990-01-01 00:00:00 aemet   0324A      &quot;RIPOLL&quot;     GIRONA                675</span></span>
+<span id="cb3-43"><a href="#cb3-43" tabindex="-1"></a><span class="co">#&gt;  7 1990-01-01 00:00:00 aemet   0367       &quot;GIRONA AER… GIRONA                143</span></span>
+<span id="cb3-44"><a href="#cb3-44" tabindex="-1"></a><span class="co">#&gt;  8 1990-01-01 00:00:00 aemet   1014       &quot;HONDARRIBI… GIPUZKOA                4</span></span>
+<span id="cb3-45"><a href="#cb3-45" tabindex="-1"></a><span class="co">#&gt;  9 1990-01-01 00:00:00 aemet   1024E      &quot;DONOSTIA /… GIPUZKOA              250</span></span>
+<span id="cb3-46"><a href="#cb3-46" tabindex="-1"></a><span class="co">#&gt; 10 1990-01-01 00:00:00 aemet   1082       &quot;BILBAO AER… BIZKAIA                42</span></span>
+<span id="cb3-47"><a href="#cb3-47" tabindex="-1"></a><span class="co">#&gt; # ℹ 7,005 more rows</span></span>
+<span id="cb3-48"><a href="#cb3-48" tabindex="-1"></a><span class="co">#&gt; # ℹ 7 more variables: mean_temperature [°C], min_temperature [°C],</span></span>
+<span id="cb3-49"><a href="#cb3-49" tabindex="-1"></a><span class="co">#&gt; #   max_temperature [°C], precipitation [L/m^2], mean_wind_speed [m/s],</span></span>
+<span id="cb3-50"><a href="#cb3-50" tabindex="-1"></a><span class="co">#&gt; #   insolation [h], geometry &lt;POINT [°]&gt;</span></span></code></pre></div>
 <p>While for short periods this can be easily done, when needing long
 periods (years, decades), this can be tedious and prone to error (or at
 least involves a lot of <em>copy&amp;paste</em> and generate longer
@@ -445,8 +481,41 @@ directly:</p>
 <span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>    }</span>
 <span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">list_rbind</span>()</span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a></span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="fu">head</span>(res_tidyverse)</span></code></pre></div>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; ℹ © AEMET. Autorizado el uso de la información y su reproducción citando a</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt;   AEMET como autora de la misma.</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; https://www.aemet.es/es/nota_legal</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt; ℹ © AEMET. Autorizado el uso de la información y su reproducción citando a</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt;   AEMET como autora de la misma.</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; https://www.aemet.es/es/nota_legal</span></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; ℹ © AEMET. Autorizado el uso de la información y su reproducción citando a</span></span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt;   AEMET como autora de la misma.</span></span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt; https://www.aemet.es/es/nota_legal</span></span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt; ℹ © AEMET. Autorizado el uso de la información y su reproducción citando a</span></span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt;   AEMET como autora de la misma.</span></span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt; https://www.aemet.es/es/nota_legal</span></span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a></span>
+<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="fu">head</span>(res_tidyverse)</span>
+<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a><span class="co">#&gt;    timestamp service station_id         station_name station_province altitude</span></span>
+<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a><span class="co">#&gt; 1 1990-01-01   aemet      0002I          VANDELLÒS          TARRAGONA   32 [m]</span></span>
+<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a><span class="co">#&gt; 2 1990-01-01   aemet      0016A      REUS AEROPUERTO        TARRAGONA   71 [m]</span></span>
+<span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a><span class="co">#&gt; 3 1990-01-01   aemet       0076 BARCELONA AEROPUERTO        BARCELONA    4 [m]</span></span>
+<span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a><span class="co">#&gt; 4 1990-01-01   aemet      0200E     BARCELONA, FABRA        BARCELONA  408 [m]</span></span>
+<span id="cb5-38"><a href="#cb5-38" tabindex="-1"></a><span class="co">#&gt; 5 1990-01-01   aemet      0229I  SABADELL AEROPUERTO        BARCELONA  146 [m]</span></span>
+<span id="cb5-39"><a href="#cb5-39" tabindex="-1"></a><span class="co">#&gt; 6 1990-01-01   aemet      0324A               RIPOLL           GIRONA  675 [m]</span></span>
+<span id="cb5-40"><a href="#cb5-40" tabindex="-1"></a><span class="co">#&gt;   mean_temperature min_temperature max_temperature precipitation</span></span>
+<span id="cb5-41"><a href="#cb5-41" tabindex="-1"></a><span class="co">#&gt; 1        11.2 [°C]        8.8 [°C]       13.7 [°C]     0 [L/m^2]</span></span>
+<span id="cb5-42"><a href="#cb5-42" tabindex="-1"></a><span class="co">#&gt; 2         9.0 [°C]        5.4 [°C]       12.6 [°C]     0 [L/m^2]</span></span>
+<span id="cb5-43"><a href="#cb5-43" tabindex="-1"></a><span class="co">#&gt; 3         9.2 [°C]        4.0 [°C]       14.4 [°C]     0 [L/m^2]</span></span>
+<span id="cb5-44"><a href="#cb5-44" tabindex="-1"></a><span class="co">#&gt; 4         9.2 [°C]        6.4 [°C]       12.0 [°C]     0 [L/m^2]</span></span>
+<span id="cb5-45"><a href="#cb5-45" tabindex="-1"></a><span class="co">#&gt; 5         7.0 [°C]        2.0 [°C]       12.0 [°C]     0 [L/m^2]</span></span>
+<span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a><span class="co">#&gt; 6         4.5 [°C]       -2.5 [°C]       11.5 [°C]     0 [L/m^2]</span></span>
+<span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a><span class="co">#&gt;   mean_wind_speed insolation                   geometry</span></span>
+<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a><span class="co">#&gt; 1       1.7 [m/s]    0.1 [h] POINT (0.8713889 40.95806)</span></span>
+<span id="cb5-49"><a href="#cb5-49" tabindex="-1"></a><span class="co">#&gt; 2       0.6 [m/s]    0.1 [h]    POINT (1.163611 41.145)</span></span>
+<span id="cb5-50"><a href="#cb5-50" tabindex="-1"></a><span class="co">#&gt; 3       3.6 [m/s]    6.7 [h]      POINT (2.07 41.29278)</span></span>
+<span id="cb5-51"><a href="#cb5-51" tabindex="-1"></a><span class="co">#&gt; 4       5.6 [m/s]    8.3 [h]  POINT (2.124167 41.41833)</span></span>
+<span id="cb5-52"><a href="#cb5-52" tabindex="-1"></a><span class="co">#&gt; 5        NA [m/s]     NA [h]  POINT (2.103056 41.52361)</span></span>
+<span id="cb5-53"><a href="#cb5-53" tabindex="-1"></a><span class="co">#&gt; 6        NA [m/s]     NA [h]  POINT (2.196111 42.19139)</span></span></code></pre></div>
 </div>
 <div id="for-loop" class="section level3">
 <h3>for loop</h3>
@@ -469,10 +538,28 @@ vectors:</p>
 <span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>  res_for <span class="ot">&lt;-</span> <span class="fu">rbind</span>(res_for, temp_res)</span>
 <span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>}</span>
 <span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a></span>
-<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="fu">head</span>(res_for)</span></code></pre></div>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="fu">head</span>(res_for)</span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 6 features and 12 fields</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; Geometry type: POINT</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; Dimension:     XY</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; Bounding box:  xmin: 0.8713889 ymin: 40.95806 xmax: 2.196111 ymax: 42.19139</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt; Geodetic CRS:  WGS 84</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; # A tibble: 6 × 13</span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt;   timestamp           service station_id station_name  station_province altitude</span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt;   &lt;dttm&gt;              &lt;chr&gt;   &lt;chr&gt;      &lt;chr&gt;         &lt;chr&gt;                 [m]</span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt; 1 1990-01-01 00:00:00 aemet   0002I      &quot;VANDELLÒS  &quot; TARRAGONA              32</span></span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt; 2 1990-01-01 00:00:00 aemet   0016A      &quot;REUS AEROPU… TARRAGONA              71</span></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt; 3 1990-01-01 00:00:00 aemet   0076       &quot;BARCELONA A… BARCELONA               4</span></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt; 4 1990-01-01 00:00:00 aemet   0200E      &quot;BARCELONA, … BARCELONA             408</span></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt; 5 1990-01-01 00:00:00 aemet   0229I      &quot;SABADELL AE… BARCELONA             146</span></span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="co">#&gt; 6 1990-01-01 00:00:00 aemet   0324A      &quot;RIPOLL&quot;      GIRONA                675</span></span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="co">#&gt; # ℹ 7 more variables: mean_temperature [°C], min_temperature [°C],</span></span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a><span class="co">#&gt; #   max_temperature [°C], precipitation [L/m^2], mean_wind_speed [m/s],</span></span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a><span class="co">#&gt; #   insolation [h], geometry &lt;POINT [°]&gt;</span></span></code></pre></div>
 <p>Both methods return identical results:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># both are identical</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">identical</span>(res_tidyverse, res_for)</span></code></pre></div>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">identical</span>(res_tidyverse, res_for)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
 <blockquote>
 <p>In a loop, no matter if a <code>purrr::map</code> or a
 <code>for</code> loop, each iteration will connect with the API,
@@ -497,7 +584,17 @@ return all days in April, 2020:</p>
 <span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">api_key =</span> keyring<span class="sc">::</span><span class="fu">key_get</span>(<span class="st">&#39;meteocat&#39;</span>)</span>
 <span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>)</span>
 <span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>april_2020 <span class="ot">&lt;-</span> <span class="fu">get_meteo_from</span>(<span class="st">&#39;meteocat&#39;</span>, api_options)</span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="fu">unique</span>(april_2020<span class="sc">$</span>timestamp)</span></code></pre></div>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; ℹ Data provided by meteo.cat © Servei Meteorològic de Catalunya</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; https://www.meteo.cat/wpweb/avis-legal/#info</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="fu">unique</span>(april_2020<span class="sc">$</span>timestamp)</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;2020-04-01 UTC&quot; &quot;2020-04-02 UTC&quot; &quot;2020-04-03 UTC&quot; &quot;2020-04-04 UTC&quot;</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt;  [5] &quot;2020-04-05 UTC&quot; &quot;2020-04-06 UTC&quot; &quot;2020-04-07 UTC&quot; &quot;2020-04-08 UTC&quot;</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;2020-04-09 UTC&quot; &quot;2020-04-10 UTC&quot; &quot;2020-04-11 UTC&quot; &quot;2020-04-12 UTC&quot;</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; [13] &quot;2020-04-13 UTC&quot; &quot;2020-04-14 UTC&quot; &quot;2020-04-15 UTC&quot; &quot;2020-04-16 UTC&quot;</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt; [17] &quot;2020-04-17 UTC&quot; &quot;2020-04-18 UTC&quot; &quot;2020-04-19 UTC&quot; &quot;2020-04-20 UTC&quot;</span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt; [21] &quot;2020-04-21 UTC&quot; &quot;2020-04-22 UTC&quot; &quot;2020-04-23 UTC&quot; &quot;2020-04-24 UTC&quot;</span></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt; [25] &quot;2020-04-25 UTC&quot; &quot;2020-04-26 UTC&quot; &quot;2020-04-27 UTC&quot; &quot;2020-04-28 UTC&quot;</span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt; [29] &quot;2020-04-29 UTC&quot; &quot;2020-04-30 UTC&quot;</span></span></code></pre></div>
 <p>This means that if we want more than one month, we need to use loops
 in a similar way as described previously for AEMET:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>start_dates <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">as.Date</span>(<span class="st">&#39;2020-01-01&#39;</span>), <span class="fu">as.Date</span>(<span class="st">&#39;2020-04-01&#39;</span>), <span class="st">&#39;months&#39;</span>)</span>
@@ -518,29 +615,92 @@ in a similar way as described previously for AEMET:</p>
 <span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>    }</span>
 <span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">list_rbind</span>()</span>
-<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a></span>
-<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="fu">head</span>(meteocat_2020q1_tidyverse)</span>
-<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a></span>
-<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co"># base for loop</span></span>
-<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a>meteocat_2020q1_for <span class="ot">&lt;-</span> <span class="fu">data.frame</span>()</span>
-<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a></span>
-<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="cf">for</span> (index <span class="cf">in</span> <span class="fu">seq_along</span>(start_dates)) {</span>
-<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a>  temp_res <span class="ot">&lt;-</span> <span class="fu">get_meteo_from</span>(</span>
-<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a>    <span class="st">&#39;meteocat&#39;</span>,</span>
-<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a>    <span class="fu">meteocat_options</span>(</span>
-<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a>      <span class="at">api_key =</span> keyring<span class="sc">::</span><span class="fu">key_get</span>(<span class="st">&#39;meteocat&#39;</span>),</span>
-<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a>      <span class="at">resolution =</span> <span class="st">&#39;daily&#39;</span>,</span>
-<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a>      <span class="at">start_date =</span> start_dates[index]</span>
-<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a>    )</span>
-<span id="cb9-33"><a href="#cb9-33" tabindex="-1"></a>  )</span>
-<span id="cb9-34"><a href="#cb9-34" tabindex="-1"></a>  </span>
-<span id="cb9-35"><a href="#cb9-35" tabindex="-1"></a>  meteocat_2020q1_for <span class="ot">&lt;-</span> <span class="fu">rbind</span>(meteocat_2020q1_for, temp_res)</span>
-<span id="cb9-36"><a href="#cb9-36" tabindex="-1"></a>}</span>
-<span id="cb9-37"><a href="#cb9-37" tabindex="-1"></a></span>
-<span id="cb9-38"><a href="#cb9-38" tabindex="-1"></a><span class="fu">head</span>(meteocat_2020q1_for)</span>
-<span id="cb9-39"><a href="#cb9-39" tabindex="-1"></a></span>
-<span id="cb9-40"><a href="#cb9-40" tabindex="-1"></a><span class="co"># both are identical</span></span>
-<span id="cb9-41"><a href="#cb9-41" tabindex="-1"></a><span class="fu">identical</span>(meteocat_2020q1_tidyverse, meteocat_2020q1_for)</span></code></pre></div>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt; ℹ Data provided by meteo.cat © Servei Meteorològic de Catalunya</span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; https://www.meteo.cat/wpweb/avis-legal/#info</span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt; ℹ Data provided by meteo.cat © Servei Meteorològic de Catalunya</span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt; https://www.meteo.cat/wpweb/avis-legal/#info</span></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt; ℹ Data provided by meteo.cat © Servei Meteorològic de Catalunya</span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt; https://www.meteo.cat/wpweb/avis-legal/#info</span></span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt; ℹ Data provided by meteo.cat © Servei Meteorològic de Catalunya</span></span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt; https://www.meteo.cat/wpweb/avis-legal/#info</span></span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a></span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="fu">head</span>(meteocat_2020q1_tidyverse)</span>
+<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="co">#&gt;    timestamp  service station_id                station_name station_province</span></span>
+<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a><span class="co">#&gt; 1 2020-01-01 meteocat         C6         Castellnou de Seana           Lleida</span></span>
+<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a><span class="co">#&gt; 2 2020-01-01 meteocat         C7                     Tàrrega           Lleida</span></span>
+<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a><span class="co">#&gt; 3 2020-01-01 meteocat         C8                     Cervera           Lleida</span></span>
+<span id="cb9-33"><a href="#cb9-33" tabindex="-1"></a><span class="co">#&gt; 4 2020-01-01 meteocat         C9            Mas de Barberans        Tarragona</span></span>
+<span id="cb9-34"><a href="#cb9-34" tabindex="-1"></a><span class="co">#&gt; 5 2020-01-01 meteocat         CC                        Orís        Barcelona</span></span>
+<span id="cb9-35"><a href="#cb9-35" tabindex="-1"></a><span class="co">#&gt; 6 2020-01-01 meteocat         CD la Seu d&#39;Urgell - Bellestar           Lleida</span></span>
+<span id="cb9-36"><a href="#cb9-36" tabindex="-1"></a><span class="co">#&gt;   altitude mean_temperature min_temperature max_temperature</span></span>
+<span id="cb9-37"><a href="#cb9-37" tabindex="-1"></a><span class="co">#&gt; 1  264 [m]         3.9 [°C]        3.2 [°C]        4.5 [°C]</span></span>
+<span id="cb9-38"><a href="#cb9-38" tabindex="-1"></a><span class="co">#&gt; 2  427 [m]         2.5 [°C]        1.9 [°C]        3.3 [°C]</span></span>
+<span id="cb9-39"><a href="#cb9-39" tabindex="-1"></a><span class="co">#&gt; 3  554 [m]         1.6 [°C]        0.6 [°C]        2.3 [°C]</span></span>
+<span id="cb9-40"><a href="#cb9-40" tabindex="-1"></a><span class="co">#&gt; 4  240 [m]         3.4 [°C]        1.7 [°C]        6.5 [°C]</span></span>
+<span id="cb9-41"><a href="#cb9-41" tabindex="-1"></a><span class="co">#&gt; 5  626 [m]         2.2 [°C]       -2.5 [°C]       11.1 [°C]</span></span>
+<span id="cb9-42"><a href="#cb9-42" tabindex="-1"></a><span class="co">#&gt; 6  849 [m]         2.5 [°C]       -3.2 [°C]       11.9 [°C]</span></span>
+<span id="cb9-43"><a href="#cb9-43" tabindex="-1"></a><span class="co">#&gt;   mean_relative_humidity min_relative_humidity max_relative_humidity</span></span>
+<span id="cb9-44"><a href="#cb9-44" tabindex="-1"></a><span class="co">#&gt; 1                 93 [%]                87 [%]                97 [%]</span></span>
+<span id="cb9-45"><a href="#cb9-45" tabindex="-1"></a><span class="co">#&gt; 2                 97 [%]                93 [%]               100 [%]</span></span>
+<span id="cb9-46"><a href="#cb9-46" tabindex="-1"></a><span class="co">#&gt; 3                100 [%]               100 [%]               100 [%]</span></span>
+<span id="cb9-47"><a href="#cb9-47" tabindex="-1"></a><span class="co">#&gt; 4                 87 [%]                72 [%]                97 [%]</span></span>
+<span id="cb9-48"><a href="#cb9-48" tabindex="-1"></a><span class="co">#&gt; 5                 85 [%]                53 [%]                96 [%]</span></span>
+<span id="cb9-49"><a href="#cb9-49" tabindex="-1"></a><span class="co">#&gt; 6                 82 [%]                45 [%]                98 [%]</span></span>
+<span id="cb9-50"><a href="#cb9-50" tabindex="-1"></a><span class="co">#&gt;   precipitation mean_wind_direction mean_wind_speed global_solar_radiation</span></span>
+<span id="cb9-51"><a href="#cb9-51" tabindex="-1"></a><span class="co">#&gt; 1   0.0 [L/m^2]              NA [°]        NA [m/s]           1.6 [MJ/m^2]</span></span>
+<span id="cb9-52"><a href="#cb9-52" tabindex="-1"></a><span class="co">#&gt; 2   0.0 [L/m^2]              NA [°]        NA [m/s]           1.4 [MJ/m^2]</span></span>
+<span id="cb9-53"><a href="#cb9-53" tabindex="-1"></a><span class="co">#&gt; 3   0.1 [L/m^2]              NA [°]        NA [m/s]           1.6 [MJ/m^2]</span></span>
+<span id="cb9-54"><a href="#cb9-54" tabindex="-1"></a><span class="co">#&gt; 4   0.0 [L/m^2]              NA [°]        NA [m/s]           4.1 [MJ/m^2]</span></span>
+<span id="cb9-55"><a href="#cb9-55" tabindex="-1"></a><span class="co">#&gt; 5   0.0 [L/m^2]              NA [°]        NA [m/s]           8.1 [MJ/m^2]</span></span>
+<span id="cb9-56"><a href="#cb9-56" tabindex="-1"></a><span class="co">#&gt; 6   0.0 [L/m^2]              NA [°]        NA [m/s]           8.2 [MJ/m^2]</span></span>
+<span id="cb9-57"><a href="#cb9-57" tabindex="-1"></a><span class="co">#&gt;                   geometry</span></span>
+<span id="cb9-58"><a href="#cb9-58" tabindex="-1"></a><span class="co">#&gt; 1  POINT (0.95172 41.6566)</span></span>
+<span id="cb9-59"><a href="#cb9-59" tabindex="-1"></a><span class="co">#&gt; 2 POINT (1.16234 41.66695)</span></span>
+<span id="cb9-60"><a href="#cb9-60" tabindex="-1"></a><span class="co">#&gt; 3 POINT (1.29609 41.67555)</span></span>
+<span id="cb9-61"><a href="#cb9-61" tabindex="-1"></a><span class="co">#&gt; 4 POINT (0.39988 40.71825)</span></span>
+<span id="cb9-62"><a href="#cb9-62" tabindex="-1"></a><span class="co">#&gt; 5 POINT (2.20862 42.07398)</span></span>
+<span id="cb9-63"><a href="#cb9-63" tabindex="-1"></a><span class="co">#&gt; 6 POINT (1.43277 42.37083)</span></span>
+<span id="cb9-64"><a href="#cb9-64" tabindex="-1"></a></span>
+<span id="cb9-65"><a href="#cb9-65" tabindex="-1"></a><span class="co"># base for loop</span></span>
+<span id="cb9-66"><a href="#cb9-66" tabindex="-1"></a>meteocat_2020q1_for <span class="ot">&lt;-</span> <span class="fu">data.frame</span>()</span>
+<span id="cb9-67"><a href="#cb9-67" tabindex="-1"></a></span>
+<span id="cb9-68"><a href="#cb9-68" tabindex="-1"></a><span class="cf">for</span> (index <span class="cf">in</span> <span class="fu">seq_along</span>(start_dates)) {</span>
+<span id="cb9-69"><a href="#cb9-69" tabindex="-1"></a>  temp_res <span class="ot">&lt;-</span> <span class="fu">get_meteo_from</span>(</span>
+<span id="cb9-70"><a href="#cb9-70" tabindex="-1"></a>    <span class="st">&#39;meteocat&#39;</span>,</span>
+<span id="cb9-71"><a href="#cb9-71" tabindex="-1"></a>    <span class="fu">meteocat_options</span>(</span>
+<span id="cb9-72"><a href="#cb9-72" tabindex="-1"></a>      <span class="at">api_key =</span> keyring<span class="sc">::</span><span class="fu">key_get</span>(<span class="st">&#39;meteocat&#39;</span>),</span>
+<span id="cb9-73"><a href="#cb9-73" tabindex="-1"></a>      <span class="at">resolution =</span> <span class="st">&#39;daily&#39;</span>,</span>
+<span id="cb9-74"><a href="#cb9-74" tabindex="-1"></a>      <span class="at">start_date =</span> start_dates[index]</span>
+<span id="cb9-75"><a href="#cb9-75" tabindex="-1"></a>    )</span>
+<span id="cb9-76"><a href="#cb9-76" tabindex="-1"></a>  )</span>
+<span id="cb9-77"><a href="#cb9-77" tabindex="-1"></a>  </span>
+<span id="cb9-78"><a href="#cb9-78" tabindex="-1"></a>  meteocat_2020q1_for <span class="ot">&lt;-</span> <span class="fu">rbind</span>(meteocat_2020q1_for, temp_res)</span>
+<span id="cb9-79"><a href="#cb9-79" tabindex="-1"></a>}</span>
+<span id="cb9-80"><a href="#cb9-80" tabindex="-1"></a></span>
+<span id="cb9-81"><a href="#cb9-81" tabindex="-1"></a><span class="fu">head</span>(meteocat_2020q1_for)</span>
+<span id="cb9-82"><a href="#cb9-82" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 6 features and 16 fields</span></span>
+<span id="cb9-83"><a href="#cb9-83" tabindex="-1"></a><span class="co">#&gt; Geometry type: POINT</span></span>
+<span id="cb9-84"><a href="#cb9-84" tabindex="-1"></a><span class="co">#&gt; Dimension:     XY</span></span>
+<span id="cb9-85"><a href="#cb9-85" tabindex="-1"></a><span class="co">#&gt; Bounding box:  xmin: 0.39988 ymin: 40.71825 xmax: 2.20862 ymax: 42.37083</span></span>
+<span id="cb9-86"><a href="#cb9-86" tabindex="-1"></a><span class="co">#&gt; Geodetic CRS:  WGS 84</span></span>
+<span id="cb9-87"><a href="#cb9-87" tabindex="-1"></a><span class="co">#&gt; # A tibble: 6 × 17</span></span>
+<span id="cb9-88"><a href="#cb9-88" tabindex="-1"></a><span class="co">#&gt;   timestamp           service  station_id station_name station_province altitude</span></span>
+<span id="cb9-89"><a href="#cb9-89" tabindex="-1"></a><span class="co">#&gt;   &lt;dttm&gt;              &lt;chr&gt;    &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;                 [m]</span></span>
+<span id="cb9-90"><a href="#cb9-90" tabindex="-1"></a><span class="co">#&gt; 1 2020-01-01 00:00:00 meteocat C6         Castellnou … Lleida                264</span></span>
+<span id="cb9-91"><a href="#cb9-91" tabindex="-1"></a><span class="co">#&gt; 2 2020-01-01 00:00:00 meteocat C7         Tàrrega      Lleida                427</span></span>
+<span id="cb9-92"><a href="#cb9-92" tabindex="-1"></a><span class="co">#&gt; 3 2020-01-01 00:00:00 meteocat C8         Cervera      Lleida                554</span></span>
+<span id="cb9-93"><a href="#cb9-93" tabindex="-1"></a><span class="co">#&gt; 4 2020-01-01 00:00:00 meteocat C9         Mas de Barb… Tarragona             240</span></span>
+<span id="cb9-94"><a href="#cb9-94" tabindex="-1"></a><span class="co">#&gt; 5 2020-01-01 00:00:00 meteocat CC         Orís         Barcelona             626</span></span>
+<span id="cb9-95"><a href="#cb9-95" tabindex="-1"></a><span class="co">#&gt; 6 2020-01-01 00:00:00 meteocat CD         la Seu d&#39;Ur… Lleida                849</span></span>
+<span id="cb9-96"><a href="#cb9-96" tabindex="-1"></a><span class="co">#&gt; # ℹ 11 more variables: mean_temperature [°C], min_temperature [°C],</span></span>
+<span id="cb9-97"><a href="#cb9-97" tabindex="-1"></a><span class="co">#&gt; #   max_temperature [°C], mean_relative_humidity [%],</span></span>
+<span id="cb9-98"><a href="#cb9-98" tabindex="-1"></a><span class="co">#&gt; #   min_relative_humidity [%], max_relative_humidity [%],</span></span>
+<span id="cb9-99"><a href="#cb9-99" tabindex="-1"></a><span class="co">#&gt; #   precipitation [L/m^2], mean_wind_direction [°], mean_wind_speed [m/s],</span></span>
+<span id="cb9-100"><a href="#cb9-100" tabindex="-1"></a><span class="co">#&gt; #   global_solar_radiation [MJ/m^2], geometry &lt;POINT [°]&gt;</span></span>
+<span id="cb9-101"><a href="#cb9-101" tabindex="-1"></a></span>
+<span id="cb9-102"><a href="#cb9-102" tabindex="-1"></a><span class="co"># both are identical</span></span>
+<span id="cb9-103"><a href="#cb9-103" tabindex="-1"></a><span class="fu">identical</span>(meteocat_2020q1_tidyverse, meteocat_2020q1_for)</span>
+<span id="cb9-104"><a href="#cb9-104" tabindex="-1"></a><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
 </div>
 <div id="monthly" class="section level3">
 <h3><code>monthly</code></h3>
@@ -552,7 +712,12 @@ return all months in 2020:</p>
 <span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="at">api_key =</span> keyring<span class="sc">::</span><span class="fu">key_get</span>(<span class="st">&#39;meteocat&#39;</span>)</span>
 <span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>)</span>
 <span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>year_2020 <span class="ot">&lt;-</span> <span class="fu">get_meteo_from</span>(<span class="st">&#39;meteocat&#39;</span>, api_options)</span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="fu">unique</span>(year_2020<span class="sc">$</span>timestamp)</span></code></pre></div>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; ℹ Data provided by meteo.cat © Servei Meteorològic de Catalunya</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; https://www.meteo.cat/wpweb/avis-legal/#info</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="fu">unique</span>(year_2020<span class="sc">$</span>timestamp)</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;2020-01-01 UTC&quot; &quot;2020-02-01 UTC&quot; &quot;2020-03-01 UTC&quot; &quot;2020-04-01 UTC&quot;</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt;  [5] &quot;2020-05-01 UTC&quot; &quot;2020-06-01 UTC&quot; &quot;2020-07-01 UTC&quot; &quot;2020-08-01 UTC&quot;</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;2020-09-01 UTC&quot; &quot;2020-10-01 UTC&quot; &quot;2020-11-01 UTC&quot; &quot;2020-12-01 UTC&quot;</span></span></code></pre></div>
 <p>Which means that if we need more than one year of monthly data, we
 need to use loops again:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>start_dates <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">as.Date</span>(<span class="st">&#39;2019-01-01&#39;</span>), <span class="fu">as.Date</span>(<span class="st">&#39;2020-01-01&#39;</span>), <span class="st">&#39;years&#39;</span>)</span>
@@ -573,28 +738,103 @@ need to use loops again:</p>
 <span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a>    }</span>
 <span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">list_rbind</span>()</span>
-<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a></span>
-<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a><span class="fu">head</span>(meteocat_2019_20_tidyverse)</span>
-<span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a></span>
-<span id="cb11-22"><a href="#cb11-22" tabindex="-1"></a><span class="co"># base for loop</span></span>
-<span id="cb11-23"><a href="#cb11-23" tabindex="-1"></a>meteocat_2019_20_for <span class="ot">&lt;-</span> <span class="fu">data.frame</span>()</span>
-<span id="cb11-24"><a href="#cb11-24" tabindex="-1"></a></span>
-<span id="cb11-25"><a href="#cb11-25" tabindex="-1"></a><span class="cf">for</span> (index <span class="cf">in</span> <span class="fu">seq_along</span>(start_dates)) {</span>
-<span id="cb11-26"><a href="#cb11-26" tabindex="-1"></a>  temp_res <span class="ot">&lt;-</span> <span class="fu">get_meteo_from</span>(</span>
-<span id="cb11-27"><a href="#cb11-27" tabindex="-1"></a>    <span class="st">&#39;meteocat&#39;</span>,</span>
-<span id="cb11-28"><a href="#cb11-28" tabindex="-1"></a>    <span class="fu">meteocat_options</span>(</span>
-<span id="cb11-29"><a href="#cb11-29" tabindex="-1"></a>      <span class="at">api_key =</span> keyring<span class="sc">::</span><span class="fu">key_get</span>(<span class="st">&#39;meteocat&#39;</span>),</span>
-<span id="cb11-30"><a href="#cb11-30" tabindex="-1"></a>      <span class="at">resolution =</span> <span class="st">&#39;monthly&#39;</span>,</span>
-<span id="cb11-31"><a href="#cb11-31" tabindex="-1"></a>      <span class="at">start_date =</span> start_dates[index]</span>
-<span id="cb11-32"><a href="#cb11-32" tabindex="-1"></a>    )</span>
-<span id="cb11-33"><a href="#cb11-33" tabindex="-1"></a>  )</span>
-<span id="cb11-34"><a href="#cb11-34" tabindex="-1"></a>  </span>
-<span id="cb11-35"><a href="#cb11-35" tabindex="-1"></a>  meteocat_2019_20_for <span class="ot">&lt;-</span> <span class="fu">rbind</span>(meteocat_2019_20_for, temp_res)</span>
-<span id="cb11-36"><a href="#cb11-36" tabindex="-1"></a>}</span>
-<span id="cb11-37"><a href="#cb11-37" tabindex="-1"></a><span class="fu">head</span>(meteocat_2019_20_for)</span>
-<span id="cb11-38"><a href="#cb11-38" tabindex="-1"></a></span>
-<span id="cb11-39"><a href="#cb11-39" tabindex="-1"></a><span class="co"># both are identical</span></span>
-<span id="cb11-40"><a href="#cb11-40" tabindex="-1"></a><span class="fu">identical</span>(meteocat_2019_20_tidyverse, meteocat_2019_20_for)</span></code></pre></div>
+<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a><span class="co">#&gt; ℹ Data provided by meteo.cat © Servei Meteorològic de Catalunya</span></span>
+<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a><span class="co">#&gt; https://www.meteo.cat/wpweb/avis-legal/#info</span></span>
+<span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a><span class="co">#&gt; ℹ Data provided by meteo.cat © Servei Meteorològic de Catalunya</span></span>
+<span id="cb11-22"><a href="#cb11-22" tabindex="-1"></a><span class="co">#&gt; https://www.meteo.cat/wpweb/avis-legal/#info</span></span>
+<span id="cb11-23"><a href="#cb11-23" tabindex="-1"></a></span>
+<span id="cb11-24"><a href="#cb11-24" tabindex="-1"></a><span class="fu">head</span>(meteocat_2019_20_tidyverse)</span>
+<span id="cb11-25"><a href="#cb11-25" tabindex="-1"></a><span class="co">#&gt;    timestamp  service station_id                station_name station_province</span></span>
+<span id="cb11-26"><a href="#cb11-26" tabindex="-1"></a><span class="co">#&gt; 1 2019-01-01 meteocat         C6         Castellnou de Seana           Lleida</span></span>
+<span id="cb11-27"><a href="#cb11-27" tabindex="-1"></a><span class="co">#&gt; 2 2019-01-01 meteocat         C7                     Tàrrega           Lleida</span></span>
+<span id="cb11-28"><a href="#cb11-28" tabindex="-1"></a><span class="co">#&gt; 3 2019-01-01 meteocat         C8                     Cervera           Lleida</span></span>
+<span id="cb11-29"><a href="#cb11-29" tabindex="-1"></a><span class="co">#&gt; 4 2019-01-01 meteocat         C9            Mas de Barberans        Tarragona</span></span>
+<span id="cb11-30"><a href="#cb11-30" tabindex="-1"></a><span class="co">#&gt; 5 2019-01-01 meteocat         CC                        Orís        Barcelona</span></span>
+<span id="cb11-31"><a href="#cb11-31" tabindex="-1"></a><span class="co">#&gt; 6 2019-01-01 meteocat         CD la Seu d&#39;Urgell - Bellestar           Lleida</span></span>
+<span id="cb11-32"><a href="#cb11-32" tabindex="-1"></a><span class="co">#&gt;   altitude mean_temperature min_temperature_absolute min_temperature_mean</span></span>
+<span id="cb11-33"><a href="#cb11-33" tabindex="-1"></a><span class="co">#&gt; 1  264 [m]         2.9 [°C]                -7.0 [°C]            -1.8 [°C]</span></span>
+<span id="cb11-34"><a href="#cb11-34" tabindex="-1"></a><span class="co">#&gt; 2  427 [m]         2.9 [°C]                -5.0 [°C]            -0.5 [°C]</span></span>
+<span id="cb11-35"><a href="#cb11-35" tabindex="-1"></a><span class="co">#&gt; 3  554 [m]         2.5 [°C]                -5.6 [°C]            -0.7 [°C]</span></span>
+<span id="cb11-36"><a href="#cb11-36" tabindex="-1"></a><span class="co">#&gt; 4  240 [m]         9.4 [°C]                 0.2 [°C]             5.1 [°C]</span></span>
+<span id="cb11-37"><a href="#cb11-37" tabindex="-1"></a><span class="co">#&gt; 5  626 [m]         2.3 [°C]                -8.3 [°C]            -2.7 [°C]</span></span>
+<span id="cb11-38"><a href="#cb11-38" tabindex="-1"></a><span class="co">#&gt; 6  849 [m]         2.9 [°C]                -7.1 [°C]            -3.0 [°C]</span></span>
+<span id="cb11-39"><a href="#cb11-39" tabindex="-1"></a><span class="co">#&gt;   max_temperature_absolute max_temperature_mean mean_relative_humidity</span></span>
+<span id="cb11-40"><a href="#cb11-40" tabindex="-1"></a><span class="co">#&gt; 1                17.9 [°C]             8.5 [°C]                 84 [%]</span></span>
+<span id="cb11-41"><a href="#cb11-41" tabindex="-1"></a><span class="co">#&gt; 2                15.9 [°C]             7.4 [°C]                 85 [%]</span></span>
+<span id="cb11-42"><a href="#cb11-42" tabindex="-1"></a><span class="co">#&gt; 3                14.0 [°C]             6.5 [°C]                 85 [%]</span></span>
+<span id="cb11-43"><a href="#cb11-43" tabindex="-1"></a><span class="co">#&gt; 4                18.0 [°C]            14.0 [°C]                 55 [%]</span></span>
+<span id="cb11-44"><a href="#cb11-44" tabindex="-1"></a><span class="co">#&gt; 5                15.7 [°C]             9.9 [°C]                 73 [%]</span></span>
+<span id="cb11-45"><a href="#cb11-45" tabindex="-1"></a><span class="co">#&gt; 6                17.9 [°C]            10.7 [°C]                 56 [%]</span></span>
+<span id="cb11-46"><a href="#cb11-46" tabindex="-1"></a><span class="co">#&gt;   min_relative_humidity_absolute min_relative_humidity_mean</span></span>
+<span id="cb11-47"><a href="#cb11-47" tabindex="-1"></a><span class="co">#&gt; 1                         23 [%]                     64 [%]</span></span>
+<span id="cb11-48"><a href="#cb11-48" tabindex="-1"></a><span class="co">#&gt; 2                         28 [%]                     68 [%]</span></span>
+<span id="cb11-49"><a href="#cb11-49" tabindex="-1"></a><span class="co">#&gt; 3                         27 [%]                     70 [%]</span></span>
+<span id="cb11-50"><a href="#cb11-50" tabindex="-1"></a><span class="co">#&gt; 4                         17 [%]                     38 [%]</span></span>
+<span id="cb11-51"><a href="#cb11-51" tabindex="-1"></a><span class="co">#&gt; 5                          8 [%]                     43 [%]</span></span>
+<span id="cb11-52"><a href="#cb11-52" tabindex="-1"></a><span class="co">#&gt; 6                          4 [%]                     28 [%]</span></span>
+<span id="cb11-53"><a href="#cb11-53" tabindex="-1"></a><span class="co">#&gt;   max_relative_humidity_absolute max_relative_humidity_mean precipitation</span></span>
+<span id="cb11-54"><a href="#cb11-54" tabindex="-1"></a><span class="co">#&gt; 1                        100 [%]                     97 [%]   8.4 [L/m^2]</span></span>
+<span id="cb11-55"><a href="#cb11-55" tabindex="-1"></a><span class="co">#&gt; 2                        100 [%]                     96 [%]  14.1 [L/m^2]</span></span>
+<span id="cb11-56"><a href="#cb11-56" tabindex="-1"></a><span class="co">#&gt; 3                        100 [%]                     95 [%]  10.4 [L/m^2]</span></span>
+<span id="cb11-57"><a href="#cb11-57" tabindex="-1"></a><span class="co">#&gt; 4                         97 [%]                     76 [%]   4.0 [L/m^2]</span></span>
+<span id="cb11-58"><a href="#cb11-58" tabindex="-1"></a><span class="co">#&gt; 5                         96 [%]                     90 [%]   8.0 [L/m^2]</span></span>
+<span id="cb11-59"><a href="#cb11-59" tabindex="-1"></a><span class="co">#&gt; 6                         98 [%]                     78 [%]  34.9 [L/m^2]</span></span>
+<span id="cb11-60"><a href="#cb11-60" tabindex="-1"></a><span class="co">#&gt;   mean_wind_direction mean_wind_speed global_solar_radiation</span></span>
+<span id="cb11-61"><a href="#cb11-61" tabindex="-1"></a><span class="co">#&gt; 1              NA [°]        NA [m/s]           6.4 [MJ/m^2]</span></span>
+<span id="cb11-62"><a href="#cb11-62" tabindex="-1"></a><span class="co">#&gt; 2              NA [°]        NA [m/s]           6.4 [MJ/m^2]</span></span>
+<span id="cb11-63"><a href="#cb11-63" tabindex="-1"></a><span class="co">#&gt; 3              NA [°]        NA [m/s]           6.7 [MJ/m^2]</span></span>
+<span id="cb11-64"><a href="#cb11-64" tabindex="-1"></a><span class="co">#&gt; 4              NA [°]        NA [m/s]           9.3 [MJ/m^2]</span></span>
+<span id="cb11-65"><a href="#cb11-65" tabindex="-1"></a><span class="co">#&gt; 5              NA [°]        NA [m/s]           8.0 [MJ/m^2]</span></span>
+<span id="cb11-66"><a href="#cb11-66" tabindex="-1"></a><span class="co">#&gt; 6              NA [°]        NA [m/s]           8.4 [MJ/m^2]</span></span>
+<span id="cb11-67"><a href="#cb11-67" tabindex="-1"></a><span class="co">#&gt;                   geometry</span></span>
+<span id="cb11-68"><a href="#cb11-68" tabindex="-1"></a><span class="co">#&gt; 1  POINT (0.95172 41.6566)</span></span>
+<span id="cb11-69"><a href="#cb11-69" tabindex="-1"></a><span class="co">#&gt; 2 POINT (1.16234 41.66695)</span></span>
+<span id="cb11-70"><a href="#cb11-70" tabindex="-1"></a><span class="co">#&gt; 3 POINT (1.29609 41.67555)</span></span>
+<span id="cb11-71"><a href="#cb11-71" tabindex="-1"></a><span class="co">#&gt; 4 POINT (0.39988 40.71825)</span></span>
+<span id="cb11-72"><a href="#cb11-72" tabindex="-1"></a><span class="co">#&gt; 5 POINT (2.20862 42.07398)</span></span>
+<span id="cb11-73"><a href="#cb11-73" tabindex="-1"></a><span class="co">#&gt; 6 POINT (1.43277 42.37083)</span></span>
+<span id="cb11-74"><a href="#cb11-74" tabindex="-1"></a></span>
+<span id="cb11-75"><a href="#cb11-75" tabindex="-1"></a><span class="co"># base for loop</span></span>
+<span id="cb11-76"><a href="#cb11-76" tabindex="-1"></a>meteocat_2019_20_for <span class="ot">&lt;-</span> <span class="fu">data.frame</span>()</span>
+<span id="cb11-77"><a href="#cb11-77" tabindex="-1"></a></span>
+<span id="cb11-78"><a href="#cb11-78" tabindex="-1"></a><span class="cf">for</span> (index <span class="cf">in</span> <span class="fu">seq_along</span>(start_dates)) {</span>
+<span id="cb11-79"><a href="#cb11-79" tabindex="-1"></a>  temp_res <span class="ot">&lt;-</span> <span class="fu">get_meteo_from</span>(</span>
+<span id="cb11-80"><a href="#cb11-80" tabindex="-1"></a>    <span class="st">&#39;meteocat&#39;</span>,</span>
+<span id="cb11-81"><a href="#cb11-81" tabindex="-1"></a>    <span class="fu">meteocat_options</span>(</span>
+<span id="cb11-82"><a href="#cb11-82" tabindex="-1"></a>      <span class="at">api_key =</span> keyring<span class="sc">::</span><span class="fu">key_get</span>(<span class="st">&#39;meteocat&#39;</span>),</span>
+<span id="cb11-83"><a href="#cb11-83" tabindex="-1"></a>      <span class="at">resolution =</span> <span class="st">&#39;monthly&#39;</span>,</span>
+<span id="cb11-84"><a href="#cb11-84" tabindex="-1"></a>      <span class="at">start_date =</span> start_dates[index]</span>
+<span id="cb11-85"><a href="#cb11-85" tabindex="-1"></a>    )</span>
+<span id="cb11-86"><a href="#cb11-86" tabindex="-1"></a>  )</span>
+<span id="cb11-87"><a href="#cb11-87" tabindex="-1"></a>  </span>
+<span id="cb11-88"><a href="#cb11-88" tabindex="-1"></a>  meteocat_2019_20_for <span class="ot">&lt;-</span> <span class="fu">rbind</span>(meteocat_2019_20_for, temp_res)</span>
+<span id="cb11-89"><a href="#cb11-89" tabindex="-1"></a>}</span>
+<span id="cb11-90"><a href="#cb11-90" tabindex="-1"></a><span class="fu">head</span>(meteocat_2019_20_for)</span>
+<span id="cb11-91"><a href="#cb11-91" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 6 features and 20 fields</span></span>
+<span id="cb11-92"><a href="#cb11-92" tabindex="-1"></a><span class="co">#&gt; Geometry type: POINT</span></span>
+<span id="cb11-93"><a href="#cb11-93" tabindex="-1"></a><span class="co">#&gt; Dimension:     XY</span></span>
+<span id="cb11-94"><a href="#cb11-94" tabindex="-1"></a><span class="co">#&gt; Bounding box:  xmin: 0.39988 ymin: 40.71825 xmax: 2.20862 ymax: 42.37083</span></span>
+<span id="cb11-95"><a href="#cb11-95" tabindex="-1"></a><span class="co">#&gt; Geodetic CRS:  WGS 84</span></span>
+<span id="cb11-96"><a href="#cb11-96" tabindex="-1"></a><span class="co">#&gt; # A tibble: 6 × 21</span></span>
+<span id="cb11-97"><a href="#cb11-97" tabindex="-1"></a><span class="co">#&gt;   timestamp           service  station_id station_name station_province altitude</span></span>
+<span id="cb11-98"><a href="#cb11-98" tabindex="-1"></a><span class="co">#&gt;   &lt;dttm&gt;              &lt;chr&gt;    &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;                 [m]</span></span>
+<span id="cb11-99"><a href="#cb11-99" tabindex="-1"></a><span class="co">#&gt; 1 2019-01-01 00:00:00 meteocat C6         Castellnou … Lleida                264</span></span>
+<span id="cb11-100"><a href="#cb11-100" tabindex="-1"></a><span class="co">#&gt; 2 2019-01-01 00:00:00 meteocat C7         Tàrrega      Lleida                427</span></span>
+<span id="cb11-101"><a href="#cb11-101" tabindex="-1"></a><span class="co">#&gt; 3 2019-01-01 00:00:00 meteocat C8         Cervera      Lleida                554</span></span>
+<span id="cb11-102"><a href="#cb11-102" tabindex="-1"></a><span class="co">#&gt; 4 2019-01-01 00:00:00 meteocat C9         Mas de Barb… Tarragona             240</span></span>
+<span id="cb11-103"><a href="#cb11-103" tabindex="-1"></a><span class="co">#&gt; 5 2019-01-01 00:00:00 meteocat CC         Orís         Barcelona             626</span></span>
+<span id="cb11-104"><a href="#cb11-104" tabindex="-1"></a><span class="co">#&gt; 6 2019-01-01 00:00:00 meteocat CD         la Seu d&#39;Ur… Lleida                849</span></span>
+<span id="cb11-105"><a href="#cb11-105" tabindex="-1"></a><span class="co">#&gt; # ℹ 15 more variables: mean_temperature [°C], min_temperature_absolute [°C],</span></span>
+<span id="cb11-106"><a href="#cb11-106" tabindex="-1"></a><span class="co">#&gt; #   min_temperature_mean [°C], max_temperature_absolute [°C],</span></span>
+<span id="cb11-107"><a href="#cb11-107" tabindex="-1"></a><span class="co">#&gt; #   max_temperature_mean [°C], mean_relative_humidity [%],</span></span>
+<span id="cb11-108"><a href="#cb11-108" tabindex="-1"></a><span class="co">#&gt; #   min_relative_humidity_absolute [%], min_relative_humidity_mean [%],</span></span>
+<span id="cb11-109"><a href="#cb11-109" tabindex="-1"></a><span class="co">#&gt; #   max_relative_humidity_absolute [%], max_relative_humidity_mean [%],</span></span>
+<span id="cb11-110"><a href="#cb11-110" tabindex="-1"></a><span class="co">#&gt; #   precipitation [L/m^2], mean_wind_direction [°], mean_wind_speed [m/s],</span></span>
+<span id="cb11-111"><a href="#cb11-111" tabindex="-1"></a><span class="co">#&gt; #   global_solar_radiation [MJ/m^2], geometry &lt;POINT [°]&gt;</span></span>
+<span id="cb11-112"><a href="#cb11-112" tabindex="-1"></a></span>
+<span id="cb11-113"><a href="#cb11-113" tabindex="-1"></a><span class="co"># both are identical</span></span>
+<span id="cb11-114"><a href="#cb11-114" tabindex="-1"></a><span class="fu">identical</span>(meteocat_2019_20_tidyverse, meteocat_2019_20_for)</span>
+<span id="cb11-115"><a href="#cb11-115" tabindex="-1"></a><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
 </div>
 <div id="yearly" class="section level3">
 <h3><code>yearly</code></h3>
@@ -607,7 +847,18 @@ independently of the date supplied:</p>
 <span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>  <span class="at">api_key =</span> keyring<span class="sc">::</span><span class="fu">key_get</span>(<span class="st">&#39;meteocat&#39;</span>)</span>
 <span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>)</span>
 <span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>all_years <span class="ot">&lt;-</span> <span class="fu">get_meteo_from</span>(<span class="st">&#39;meteocat&#39;</span>, api_options)</span>
-<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="fu">unique</span>(all_years<span class="sc">$</span>timestamp)</span></code></pre></div>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt; ℹ Data provided by meteo.cat © Servei Meteorològic de Catalunya</span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#&gt; https://www.meteo.cat/wpweb/avis-legal/#info</span></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="fu">unique</span>(all_years<span class="sc">$</span>timestamp)</span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;1989-10-18 UTC&quot; &quot;1990-10-18 UTC&quot; &quot;1991-10-18 UTC&quot; &quot;1992-10-18 UTC&quot;</span></span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="co">#&gt;  [5] &quot;1993-10-18 UTC&quot; &quot;1994-10-18 UTC&quot; &quot;1995-10-18 UTC&quot; &quot;1996-10-18 UTC&quot;</span></span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;1997-10-18 UTC&quot; &quot;1998-10-18 UTC&quot; &quot;1999-10-18 UTC&quot; &quot;2000-10-18 UTC&quot;</span></span>
+<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a><span class="co">#&gt; [13] &quot;2001-10-18 UTC&quot; &quot;2002-10-18 UTC&quot; &quot;2003-10-18 UTC&quot; &quot;2004-10-18 UTC&quot;</span></span>
+<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a><span class="co">#&gt; [17] &quot;2005-10-18 UTC&quot; &quot;2006-10-18 UTC&quot; &quot;2007-10-18 UTC&quot; &quot;2008-10-18 UTC&quot;</span></span>
+<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a><span class="co">#&gt; [21] &quot;2009-10-18 UTC&quot; &quot;2010-10-18 UTC&quot; &quot;2011-10-18 UTC&quot; &quot;2012-10-18 UTC&quot;</span></span>
+<span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a><span class="co">#&gt; [25] &quot;2013-10-18 UTC&quot; &quot;2014-10-18 UTC&quot; &quot;2015-10-18 UTC&quot; &quot;2016-10-18 UTC&quot;</span></span>
+<span id="cb12-16"><a href="#cb12-16" tabindex="-1"></a><span class="co">#&gt; [29] &quot;2017-10-18 UTC&quot; &quot;2018-10-18 UTC&quot; &quot;2019-10-18 UTC&quot; &quot;2020-10-18 UTC&quot;</span></span>
+<span id="cb12-17"><a href="#cb12-17" tabindex="-1"></a><span class="co">#&gt; [33] &quot;2021-10-18 UTC&quot; &quot;2022-10-18 UTC&quot;</span></span></code></pre></div>
 <p>This means that with yearly we always get all the data available, so
 there is no need of loops.</p>
 </div>
