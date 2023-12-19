@@ -39,7 +39,7 @@ api_options <- ria_options(
 api_options
 
 ## ----ria_stations, eval = NOT_CRAN--------------------------------------------
-get_stations_info_from('ria', ria_options)
+get_stations_info_from('ria', api_options)
 
 ## ----ria_data, eval = NOT_CRAN------------------------------------------------
 api_options <- ria_options(
