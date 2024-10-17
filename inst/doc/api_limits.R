@@ -15,7 +15,7 @@ library(meteospain)
 library(sf)
 
 ## ----aemet_limit, error=TRUE, eval=NOT_CRAN-----------------------------------
-# aemet api has a limit for 31 days in daily:
+# aemet api has a limit for 15 days in daily:
 get_meteo_from(
   'aemet',
   aemet_options(
@@ -26,7 +26,7 @@ get_meteo_from(
   )
 )
 
-# and monthly and yearly data to 3 years
+# and monthly and yearly data to 36 months
 get_meteo_from(
   'aemet',
   aemet_options(
@@ -39,33 +39,33 @@ get_meteo_from(
 )
 
 ## ----manual, eval=NOT_CRAN----------------------------------------------------
-res_1990_jan <- get_meteo_from(
+res_1990_jan_1 <- get_meteo_from(
   'aemet',
   aemet_options(
     api_key = keyring::key_get('aemet'),
     resolution = 'daily',
     start_date = as.Date('1990-01-01'),
-    end_date = as.Date('1990-01-31')
+    end_date = as.Date('1990-01-15')
   )
 )
 
-res_1990_feb <- get_meteo_from(
+res_1990_jan_2 <- get_meteo_from(
   'aemet',
   aemet_options(
     api_key = keyring::key_get('aemet'),
     resolution = 'daily',
-    start_date = as.Date('1990-02-01'),
-    end_date = as.Date('1990-02-28')
+    start_date = as.Date('1990-01-16'),
+    end_date = as.Date('1990-01-31')
   )
 )
 
-res <- rbind(res_1990_jan, res_1990_feb)
-res
+res_1990_jan <- rbind(res_1990_jan_1, res_1990_jan_2)
+res_1990_jan
 
 ## ----dates_vecs---------------------------------------------------------------
 # First, we prepare the date vectors, with the start and end dates.
-start_dates <- seq(as.Date('1990-01-01'), as.Date('1990-06-01'), 'months')
-end_dates <- seq(as.Date('1990-02-01'), as.Date('1990-07-01'), 'months') - 1
+start_dates <- seq(as.Date('1990-01-01'), as.Date('1990-07-01'), '15 days')
+end_dates <- seq(as.Date('1990-01-15'), as.Date('1990-07-15'), '15 days')
 
 # Both vectors must have the same length
 length(start_dates) == length(end_dates)
