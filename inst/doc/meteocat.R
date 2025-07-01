@@ -20,9 +20,9 @@ library(sf)
 library(keyring)
 
 ## ----meteocat_key, eval=FALSE-------------------------------------------------
-#  install.packages('keyring')
-#  library(keyring)
-#  key_set('meteocat') # A prompt asking for the secret (the API Key) will appear.
+# install.packages('keyring')
+# library(keyring)
+# key_set('meteocat') # A prompt asking for the secret (the API Key) will appear.
 
 ## ----meteocat_options, eval=NOT_CRAN, results='hide'--------------------------
 # current day, all stations

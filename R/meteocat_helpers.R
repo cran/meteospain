@@ -146,26 +146,31 @@
     'monthly' = c('xema', 'v1', 'variables', 'estadistics', 'mensuals', 'metadades'),
     'yearly' = c('xema', 'v1', 'variables', 'estadistics', 'anuals', 'metadades')
   )
+  # cache
+  cache_ref <- rlang::hash(path_resolution)
 
+  # get the data from cache or from API if new
+  variables_meteocat <- .get_cached_result(cache_ref, {
+    # get and status check ----------------------------------------------------------------------------------
+    api_status_check <- .check_status_meteocat(
+      'https://api.meteo.cat',
+      httr::add_headers(`x-api-key` = api_options$api_key),
+      path = path_resolution,
+      httr::user_agent('https://github.com/emf-creaf/meteospain')
+    )
 
-  # get and status check ----------------------------------------------------------------------------------
-  api_status_check <- .check_status_meteocat(
-    'https://api.meteo.cat',
-    httr::add_headers(`x-api-key` = api_options$api_key),
-    path = path_resolution,
-    httr::user_agent('https://github.com/emf-creaf/meteospain')
-  )
-
-  if (api_status_check$status != 'OK') {
-    # if api request limit reached, do a recursive call to the function after 60 seconds
-    if (api_status_check$code == 429) {
-      return(.manage_429_errors(api_status_check, api_options, .get_variables_meteocat))
+    if (api_status_check$status != 'OK') {
+      # if api request limit reached, do a recursive call to the function after 60 seconds
+      if (api_status_check$code == 429) {
+        return(.manage_429_errors(api_status_check, api_options, .get_variables_meteocat))
+      }
     }
-  }
 
-  response_content <- api_status_check$content |>
-    dplyr::as_tibble()
-  return(response_content)
+    api_status_check$content |>
+      dplyr::as_tibble()
+  })
+
+  return(variables_meteocat)
 }
 
 #' Create the path elements for MeteoCat API
@@ -198,17 +203,36 @@
   # depending on resolution, the variables list is different
   variables_list <- switch(
     api_options$resolution,
-    'instant' = c(
-      '1', '2', '3', '32', '33', '34', '35', '36', '38',
-      '40', '42', '44', '46', '47', '56', '57', '59', '72'
+    "instant" = c(
+      "1", "2", "3", "32", "33", "34", "35", "36", "38",
+      "40", "42", "44", "46", "47", "56", "57", "59", "72"
     ),
-    'hourly' = c(
-      '1', '2', '3', '32', '33', '34', '35', '36', '38',
-      '40', '42', '44', '46', '47', '56', '57', '59', '72'
+    "hourly" = c(
+      "1", "2", "3", "32", "33", "34", "35", "36", "38",
+      "40", "42", "44", "46", "47", "56", "57", "59", "72"
     ),
-    'daily' = c(1000:1002, 1100:1102, 1300, 1400, 1505, 1511),
-    'monthly' = c(2000:2004, 2100:2104, 2300, 2400, 2505, 2511),
-    'yearly' = c(3000:3004, 3100:3104, 3300, 3400, 3505, 3511)
+    "daily" = c(
+      "1000", "1001", "1002", "1003", "1004", "1100", "1101",
+      "1102", "1200", "1201", "1202", "1300", "1301", "1302",
+      "1303", "1304", "1305", "1400", "1505", "1511", "1514",
+      "1517", "1600", "1601", "1602", "1603", "1700"
+    ),
+    "monthly" = c(
+      "2000", "2001", "2002", "2003", "2004", "2005", "2006",
+      "2007", "2008", "2009", "2100", "2101", "2102", "2103",
+      "2104", "2200", "2201", "2202", "2203", "2204", "2300",
+      "2301", "2302", "2303", "2304", "2305", "2306", "2307",
+      "2308", "2309", "2400", "2505", "2511", "2514", "2517",
+      "2520", "2600", "2601", "2602"
+    ),
+    "yearly" = c(
+      "3000", "3001", "3002", "3003", "3004", "3005", "3006",
+      "3007", "3008", "3009", "3010", "3100", "3101", "3102",
+      "3103", "3104", "3200", "3201", "3202", "3203", "3204",
+      "3300", "3301", "3302", "3303", "3304", "3305", "3306",
+      "3307", "3308", "3309", "3400", "3505", "3511", "3514",
+      "3517", "3520", "3600", "3601", "3602"
+    )
   )
 
   # now the path vectors for the resolutions
@@ -289,56 +313,62 @@
   # GET parts needed --------------------------------------------------------------------------------------
   # path
   path_resolution <- c('xema', 'v1', 'estacions', 'metadades')
+  # cache
+  cache_ref <- rlang::hash(path_resolution)
 
-  # Status check ------------------------------------------------------------------------------------------
-  api_status_check <- .check_status_meteocat(
-    "https://api.meteo.cat",
-    httr::add_headers(`x-api-key` = api_options$api_key),
-    path = path_resolution,
-    httr::user_agent('https://github.com/emf-creaf/meteospain')
-  )
+  # get data from cache or from API if new
+  info_meteocat <- .get_cached_result(cache_ref, {
+    # Status check ------------------------------------------------------------------------------------------
+    api_status_check <- .check_status_meteocat(
+      "https://api.meteo.cat",
+      httr::add_headers(`x-api-key` = api_options$api_key),
+      path = path_resolution,
+      httr::user_agent('https://github.com/emf-creaf/meteospain')
+    )
 
-  if (api_status_check$status != 'OK') {
-    # if api request limit reached, do a recursive call to the function after 60 seconds
-    if (api_status_check$code == 429) {
-      return(.manage_429_errors(api_status_check, api_options, .get_info_meteocat))
-    } else {
-      cli::cli_abort(c(
-        x = api_status_check$code,
-        i = api_status_check$message
-      ))
+    if (api_status_check$status != 'OK') {
+      # if api request limit reached, do a recursive call to the function after 60 seconds
+      if (api_status_check$code == 429) {
+        return(.manage_429_errors(api_status_check, api_options, .get_info_meteocat))
+      } else {
+        cli::cli_abort(c(
+          x = api_status_check$code,
+          i = api_status_check$message
+        ))
+      }
     }
-  }
 
-  # Data --------------------------------------------------------------------------------------------------
-  # Meteocat returns a data frame, but some variables are data frames themselves. We need to work on that
-  response_content <- api_status_check$content
+    # Data --------------------------------------------------------------------------------------------------
+    # Meteocat returns a data frame, but some variables are data frames themselves. We need to work on that
+    response_content <- api_status_check$content
 
-  coords_df <- response_content[['coordenades']]
-  province_df <- response_content[['provincia']]['nom'] |>
-    dplyr::rename(station_province = "nom")
+    coords_df <- response_content[['coordenades']]
+    province_df <- response_content[['provincia']]['nom'] |>
+      dplyr::rename(station_province = "nom")
 
-  response_content |>
-    dplyr::as_tibble() |>
-    # add service name, to identify the data if joining with other services
-    dplyr::mutate(service = 'meteocat') |>
-    dplyr::select(
-      !dplyr::any_of(c(
-        'coordenades', 'municipi', 'comarca', 'provincia',
-        'xarxa', 'estats', 'tipus', 'emplacament'
-      ))
-    ) |>
-    dplyr::bind_cols(coords_df, province_df) |>
-    dplyr::select(
-      "service", station_id = "codi", station_name = "nom", "station_province",
-      altitude = "altitud", "longitud", "latitud"
-    ) |>
-    dplyr::distinct() |>
-    dplyr::mutate(
-      altitude = units::set_units(.data$altitude, 'm')
-    ) |>
-    sf::st_as_sf(coords = c('longitud', 'latitud'), crs = 4326)
+    response_content |>
+      dplyr::as_tibble() |>
+      # add service name, to identify the data if joining with other services
+      dplyr::mutate(service = 'meteocat') |>
+      dplyr::select(
+        !dplyr::any_of(c(
+          'coordenades', 'municipi', 'comarca', 'provincia',
+          'xarxa', 'estats', 'tipus', 'emplacament'
+        ))
+      ) |>
+      dplyr::bind_cols(coords_df, province_df) |>
+      dplyr::select(
+        "service", station_id = "codi", station_name = "nom", "station_province",
+        altitude = "altitud", "longitud", "latitud"
+      ) |>
+      dplyr::distinct() |>
+      dplyr::mutate(
+        altitude = units::set_units(.data$altitude, 'm')
+      ) |>
+      sf::st_as_sf(coords = c('longitud', 'latitud'), crs = 4326)
+  })
 
+  return(info_meteocat)
 }
 
 #' Get data from MeteoCat
@@ -363,40 +393,197 @@
   if (length(query_resolution) < 1) {
     query_resolution <- NULL
   }
+  # cache (in this case with path and query to get the date also)
+  cache_ref <- rlang::hash(c(paths_resolution, query_resolution))
 
-  # GET and Status check ----------------------------------------------------------------------------------
-  # Here the things are a little convoluted. MeteoCat, for returning all stations only allows one variable
-  # and one day. This means that for all variables, we need to loop around all paths (variables) needed,
-  # checking statuses and retrieving data if everything is ok.
-  api_statuses <- paths_resolution |>
-    purrr::map(
-      \(path) {
-        .check_status_meteocat(
-          "https://api.meteo.cat",
-          httr::add_headers(`x-api-key` = api_options$api_key),
-          path = path,
-          query = query_resolution,
-          httr::user_agent('https://github.com/emf-creaf/meteospain')
-        )
+  # if resolution less than daily, remove the cache
+  if (api_options$resolution %in% c("instant", "hourly")) {
+    apis_cache$remove(cache_ref)
+  }
+
+  data_meteocat <- .get_cached_result(cache_ref, {
+
+    # GET and Status check ----------------------------------------------------------------------------------
+    # Here the things are a little convoluted. MeteoCat, for returning all stations only allows one variable
+    # and one day. This means that for all variables, we need to loop around all paths (variables) needed,
+    # checking statuses and retrieving data if everything is ok.
+    api_statuses <- paths_resolution |>
+      purrr::map(
+        \(path) {
+          .check_status_meteocat(
+            "https://api.meteo.cat",
+            httr::add_headers(`x-api-key` = api_options$api_key),
+            path = path,
+            query = query_resolution,
+            httr::user_agent('https://github.com/emf-creaf/meteospain')
+          )
+        }
+      )
+
+    variables_statuses <- purrr::map_depth(api_statuses, 1, 'status') |>
+      purrr::flatten_chr()
+    variables_codes <- purrr::map_depth(api_statuses, 1, 'code') |>
+      purrr::flatten_dbl()
+    variables_messages <- purrr::map_depth(api_statuses, 1, 'message') |>
+      purrr::flatten_chr()
+
+    if (any(variables_statuses != 'OK')) {
+      if (any(variables_codes == 429)) {
+        messages_to_show <- variables_messages[which(variables_codes == 429)] |> unique()
+        return(.manage_429_errors(list(code = 429, message = messages_to_show[1]), api_options, .get_data_meteocat))
+      } else {
+        messages_to_show <- variables_messages[which(variables_codes != 200)] |> unique()
+        cli::cli_abort(c(messages_to_show))
       }
+    }
+
+    # Resolution specific carpentry -------------------------------------------------------------------------
+    # Now, instant/hourly and daily/monthly/yearly differs in the unnest step, as the column names are called
+    # differently. It also differs in the select step as in the latter group there is no repetition of column
+    # names after the unnest step.
+    resolution_specific_unnest <- .meteocat_short_carpentry
+    radiation_units <- "W/m^2"
+    var_names <- switch(
+      api_options$resolution,
+      "instant" = c(
+        "temperature", "min_temperature", "max_temperature",
+        "relative_humidity", "min_relative_humidity", "max_relative_humidity",
+        "precipitation", "max_precipitation_minute",
+        "wind_direction", "wind_speed", "max_wind_direction", "max_wind_speed",
+        "global_solar_radiation", "net_solar_radiation",
+        "snow_cover",
+        "atmospheric_pressure", "min_atmospheric_pressure", "max_atmospheric_pressure"
+      ),
+      "hourly" = c(
+        "temperature", "min_temperature", "max_temperature",
+        "relative_humidity", "min_relative_humidity", "max_relative_humidity",
+        "precipitation", "max_precipitation_minute",
+        "wind_direction", "wind_speed", "max_wind_direction", "max_wind_speed",
+        "global_solar_radiation", "net_solar_radiation",
+        "snow_cover",
+        "atmospheric_pressure", "min_atmospheric_pressure", "max_atmospheric_pressure"
+      ),
+      "daily" = c(
+        "mean_temperature", "max_temperature", "min_temperature",
+        "mean_temperature_classic", "thermal_amplitude", "mean_relative_humidity",
+        "max_relative_humidity", "min_relative_humidity", "mean_atmospheric_pressure",
+        "max_atmospheric_pressure", "min_atmospheric_pressure", "precipitation",
+        "precipitation_8h_8h", "max_precipitation_minute", "max_precipitation_hour",
+        "max_precipitation_30m", "max_precipitation_10m", "global_solar_radiation",
+        "mean_wind_speed", "mean_wind_direction", "max_wind_speed",
+        "max_wind_direction", "mean_snow_cover", "max_snow_cover", "new_snow_cover",
+        "min_snow_cover", "reference_evapotranspiration"
+      ),
+      "monthly" = c(
+        "mean_temperature", "max_temperature_absolute", "min_temperature_absolute",
+        "max_temperature_mean", "min_temperature_mean", "mean_temperature_classic",
+        "frost_days", "max_thermal_amplitude", "mean_thermal_amplitude",
+        "extreme_thermal_amplitude", "mean_relative_humidity",
+        "max_relative_humidity_absolute", "min_relative_humidity_absolute",
+        "max_relative_humidity_mean", "min_relative_humidity_mean",
+        "mean_atmospheric_pressure", "max_atmospheric_pressure_absolute",
+        "min_atmospheric_pressure_absolute", "max_atmospheric_pressure_mean",
+        "min_atmospheric_pressure_mean", "precipitation", "precipitation_8h_8h",
+        "max_precipitation_minute", "max_precipitation_24h",
+        "max_precipitation_24h_8h_8h", "rain_days_0", "rain_days_02",
+        "max_precipitation_hour", "max_precipitation_30m", "max_precipitation_10m",
+        "global_solar_radiation", "mean_wind_speed", "mean_wind_direction",
+        "max_wind_speed", "max_wind_direction", "max_wind_speed_mean", "mean_snow_cover",
+        "max_snow_cover", "new_snow_cover"
+      ),
+      "yearly" = c(
+        "mean_temperature", "max_temperature_absolute", "min_temperature_absolute",
+        "max_temperature_mean", "min_temperature_mean", "mean_temperature_classic",
+        "frost_days", "max_thermal_amplitude", "mean_thermal_amplitude",
+        "extreme_thermal_amplitude", "thermal_oscillation", "mean_relative_humidity",
+        "max_relative_humidity_absolute", "min_relative_humidity_absolute",
+        "max_relative_humidity_mean", "min_relative_humidity_mean",
+        "mean_atmospheric_pressure", "max_atmospheric_pressure_absolute",
+        "min_atmospheric_pressure_absolute", "max_atmospheric_pressure_mean",
+        "min_atmospheric_pressure_mean", "precipitation", "precipitation_8h_8h",
+        "max_precipitation_minute", "max_precipitation_24h",
+        "max_precipitation_24h_8h_8h", "rain_days_0", "rain_days_02",
+        "max_precipitation_hour", "max_precipitation_30m", "max_precipitation_10m",
+        "global_solar_radiation", "mean_wind_speed", "mean_wind_direction",
+        "max_wind_speed", "max_wind_direction", "max_wind_speed_mean",
+        "mean_snow_cover", "max_snow_cover", "new_snow_cover"
+      )
+    )
+    resolution_date_floor <- switch(
+      api_options$resolution,
+      "instant" = "second",
+      "hourly" = "second",
+      "daily" = "day",
+      "monthly" = "month",
+      "yearly" = "year"
     )
 
-  variables_statuses <- purrr::map_depth(api_statuses, 1, 'status') |>
-    purrr::flatten_chr()
-  variables_codes <- purrr::map_depth(api_statuses, 1, 'code') |>
-    purrr::flatten_dbl()
-  variables_messages <- purrr::map_depth(api_statuses, 1, 'message') |>
-    purrr::flatten_chr()
-
-  if (any(variables_statuses != 'OK')) {
-    if (any(variables_codes == 429)) {
-      messages_to_show <- variables_messages[which(variables_codes == 429)] |> unique()
-      return(.manage_429_errors(list(code = 429, message = messages_to_show[1]), api_options, .get_data_meteocat))
-    } else {
-      messages_to_show <- variables_messages[which(variables_codes != 200)] |> unique()
-      cli::cli_abort(c(messages_to_show))
+    if (api_options$resolution %in% c('daily', 'monthly', 'yearly')) {
+      resolution_specific_unnest <- .meteocat_long_carpentry
+      radiation_units <- "MJ/m^2"
     }
-  }
+
+    # Stations info for getting coords ----------------------------------------------------------------------
+    stations_info <- .get_info_meteocat(api_options)
+
+    # Data transformation -----------------------------------------------------------------------------------
+    response_transformed <- purrr::map_depth(api_statuses, 1, 'content') |>
+      # resolution specific unnesting of raw data
+      resolution_specific_unnest() |>
+      # transform variable codes to standard names
+      dplyr::mutate(variable_name = .meteocat_var_codes_2_names(.data$variable_code)) |>
+      # for daily, monthly and yearly, sometimes there are duplicated rows, remove them
+      dplyr::distinct() |>
+      # each variable in its own column
+      tidyr::pivot_wider(
+        id_cols = -"variable_code",
+        names_from = "variable_name", values_from = "valor"
+      ) |>
+      .create_missing_vars(var_names = var_names) |>
+      # set service, date and units
+      dplyr::mutate(
+        service = 'meteocat',
+        timestamp = lubridate::parse_date_time(
+          .data$timestamp,
+          orders = c('ymdHMS', 'Ymz'),
+          truncated = 5
+        ) |>
+          lubridate::floor_date(resolution_date_floor),
+        dplyr::across(dplyr::contains('temperature'), ~ units::set_units(.x, 'degree_C')),
+        dplyr::across(dplyr::contains('humidity'), ~ units::set_units(.x, '%')),
+        dplyr::across(dplyr::contains('precipitation'), ~ units::set_units(.x, 'L/m^2')),
+        # standard mode to avoid interpreting radiation_units as a symbol (default)
+        dplyr::across(
+          dplyr::contains('radiation'),
+          ~ units::set_units(.x, radiation_units, mode = "standard")
+        ),
+        dplyr::across(dplyr::contains('speed'), ~ units::set_units(.x, 'm/s')),
+        dplyr::across(dplyr::contains('direction'), ~ units::set_units(.x, 'degree')),
+        dplyr::across(dplyr::contains('pressure'), ~ units::set_units(.x, 'hPa')),
+        dplyr::across(dplyr::contains('snow'), ~ units::set_units(.x, 'cm')),
+        dplyr::across(dplyr::contains('days'), ~ units::set_units(.x, 'days')),
+        dplyr::across(dplyr::contains('thermal'), ~ units::set_units(.x, 'degree_C')),
+        dplyr::across(dplyr::contains('evapotranspiration'), ~ units::set_units(.x, 'L/m^2'))
+      )
+
+    res <- response_transformed |>
+      # join stations_info
+      dplyr::left_join(stations_info, by = c('service', 'station_id')) |>
+      # arrange data
+      dplyr::arrange(.data$timestamp, .data$station_id) |>
+      # reorder variables to be consistent among all services
+      relocate_vars() |>
+      # ensure we have an sf
+      sf::st_as_sf()
+
+    # Copyright message -------------------------------------------------------------------------------------
+    cli::cli_inform(c(
+      i = copyright_style("Data provided by meteo.cat \u00A9 Servei Meteorol\u00F2gic de Catalunya"),
+      legal_note_style("https://www.meteo.cat/wpweb/avis-legal/#info")
+    ))
+
+    res
+  })
 
   # Filter expression for stations ------------------------------------------------------------------------
   # In case stations were supplied, we need also to filter them
@@ -406,90 +593,20 @@
     filter_expression <- rlang::expr(.data$station_id %in% api_options$stations)
   }
 
-  # Resolution specific carpentry -------------------------------------------------------------------------
-  # Now, instant/hourly and daily/monthly/yearly differs in the unnest step, as the column names are called
-  # differently. It also differs in the select step as in the latter group there is no repetition of column
-  # names after the unnest step.
-  resolution_specific_unnest <- .meteocat_short_carpentry
-  radiation_units <- "W/m^2"
-  var_names <- c(
-    "temperature", "min_temperature", "max_temperature",
-    "relative_humidity", "min_relative_humidity", "max_relative_humidity",
-    "precipitation", "max_precipitation_minute",
-    "wind_direction", "wind_speed", "max_wind_direction", "max_wind_speed",
-    "global_solar_radiation", "net_solar_radiation",
-    "snow_cover",
-    "atmospheric_pressure", "min_atmospheric_pressure", "max_atmospheric_pressure"
-  )
-  if (api_options$resolution %in% c('daily', 'monthly', 'yearly')) {
-    resolution_specific_unnest <- .meteocat_long_carpentry
-    radiation_units <- "MJ/m^2"
-    var_names <- c("precipitation")
-  }
-
-  # Stations info for getting coords ----------------------------------------------------------------------
-  stations_info <- .get_info_meteocat(api_options)
-
-  # Data transformation -----------------------------------------------------------------------------------
-  response_trasformed <- purrr::map_depth(api_statuses, 1, 'content') |>
-    # resolution specific unnesting of raw data
-    resolution_specific_unnest() |>
-    # transform variable codes to standard names
-    dplyr::mutate(variable_name = .meteocat_var_codes_2_names(.data$variable_code)) |>
-    # for daily, monthly and yearly, sometimes there are duplicated rows, remove them
-    dplyr::distinct() |>
-    # each variable in its own column
-    tidyr::pivot_wider(
-      id_cols = -"variable_code",
-      names_from = "variable_name", values_from = "valor"
-    ) |>
-    .create_missing_vars(var_names = var_names) |>
-    # set service, date and units
-    dplyr::mutate(
-      service = 'meteocat',
-      timestamp = lubridate::parse_date_time(.data$timestamp, orders = c('ymdHMS', 'Ymz'), truncated = 5),
-      dplyr::across(dplyr::contains('temperature'), ~ units::set_units(.x, 'degree_C')),
-      dplyr::across(dplyr::contains('humidity'), ~ units::set_units(.x, '%')),
-      dplyr::across(dplyr::contains('precipitation'), ~ units::set_units(.x, 'L/m^2')),
-      # standard mode to avoid interpreting radiation_units as a symbol (default)
-      dplyr::across(
-        dplyr::contains('radiation'),
-        ~ units::set_units(.x, radiation_units, mode = "standard")
-      ),
-      dplyr::across(dplyr::contains('speed'), ~ units::set_units(.x, 'm/s')),
-      dplyr::across(dplyr::contains('direction'), ~ units::set_units(.x, 'degree')),
-      dplyr::across(dplyr::contains('pressure'), ~ units::set_units(.x, 'hPa')),
-      dplyr::across(dplyr::contains('snow'), ~ units::set_units(.x, 'cm'))
-    )
-
-  res <- response_trasformed |>
+  data_meteocat_fil <- data_meteocat |>
     # remove unwanted stations
-    dplyr::filter(!! filter_expression) |>
-    # join stations_info
-    dplyr::left_join(stations_info, by = c('service', 'station_id')) |>
-    # arrange data
-    dplyr::arrange(.data$timestamp, .data$station_id) |>
-    # reorder variables to be consistent among all services
-    relocate_vars() |>
-    # ensure we have an sf
-    sf::st_as_sf()
+    dplyr::filter(!! filter_expression)
 
   # Check if any stations were returned -------------------------------------------------------------------
-  if ((!is.null(api_options$stations)) & nrow(res) < 1) {
+  if ((!is.null(api_options$stations)) & nrow(data_meteocat_fil) < 1) {
     cli::cli_abort(c(
-      "Station(s) provided have no data for the dates selected.",
+      x = "Station(s) provided have no data for the dates selected.",
       "Available stations with data for the actual query are:",
-      glue::glue_collapse(unique(response_trasformed$station_id), sep = ', ', last = ' and ')
+      glue::glue_collapse(unique(data_meteocat$station_id), sep = ', ', last = ' and ')
     ))
   }
 
-  # Copyright message -------------------------------------------------------------------------------------
-  cli::cli_inform(c(
-    i = copyright_style("Data provided by meteo.cat \u00A9 Servei Meteorol\u00F2gic de Catalunya"),
-    legal_note_style("https://www.meteo.cat/wpweb/avis-legal/#info")
-  ))
-
-  return(res)
+  return(data_meteocat_fil)
 }
 
 

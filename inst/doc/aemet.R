@@ -19,9 +19,9 @@ library(sf)
 library(keyring)
 
 ## ----aemet_key, eval=FALSE----------------------------------------------------
-#  install.packages('keyring')
-#  library(keyring)
-#  key_set('aemet') # A prompt asking for the secret (the API Key) will appear.
+# install.packages('keyring')
+# library(keyring)
+# key_set('aemet') # A prompt asking for the secret (the API Key) will appear.
 
 ## ----aemet_options, eval=NOT_CRAN, results='hide'-----------------------------
 # current day, all stations

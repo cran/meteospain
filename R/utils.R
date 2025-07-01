@@ -38,65 +38,133 @@ legal_note_style <- cli::combine_ansi_styles('blue', 'underline')
 
   code_dictionary <- c(
     # instant and hourly
-    '1' = 'max_atmospheric_pressure',
-    '2' = 'min_atmospheric_pressure',
-    '3' = 'max_relative_humidity',
-    '32' = 'temperature',
-    '33' = 'relative_humidity',
-    '34' = 'atmospheric_pressure',
-    '35' = 'precipitation',
-    '36' = 'global_solar_radiation',
-    '38' = 'snow_cover',
-    '40' = 'max_temperature',
-    '42' = 'min_temperature',
-    '44' = 'min_relative_humidity',
-    '46' = 'wind_speed',
-    '47' = 'wind_direction',
-    '56' = 'max_wind_speed',
-    '57' = 'max_wind_direction',
-    '59' = 'net_solar_radiation',
-    '72' = 'max_precipitation_minute',
+    "1" = "max_atmospheric_pressure",
+    "2" = "min_atmospheric_pressure",
+    "3" = "max_relative_humidity",
+    "32" = "temperature",
+    "33" = "relative_humidity",
+    "34" = "atmospheric_pressure",
+    "35" = "precipitation",
+    "36" = "global_solar_radiation",
+    "38" = "snow_cover",
+    "40" = "max_temperature",
+    "42" = "min_temperature",
+    "44" = "min_relative_humidity",
+    "46" = "wind_speed",
+    "47" = "wind_direction",
+    "56" = "max_wind_speed",
+    "57" = "max_wind_direction",
+    "59" = "net_solar_radiation",
+    "72" = "max_precipitation_minute",
     # daily
-    '1000' = 'mean_temperature',
-    '1001' = 'max_temperature',
-    '1002' = 'min_temperature',
-    '1100' = 'mean_relative_humidity',
-    '1101' = 'max_relative_humidity',
-    '1102' = 'min_relative_humidity',
-    '1300' = 'precipitation',
-    '1400' = 'global_solar_radiation',
-    '1505' = 'mean_wind_speed',
-    '1511' = 'mean_wind_direction',
+    "1000" = "mean_temperature",
+    "1001" = "max_temperature",
+    "1002" = "min_temperature",
+    "1003" = "mean_temperature_classic",
+    "1004" = "thermal_amplitude",
+    "1100" = "mean_relative_humidity",
+    "1101" = "max_relative_humidity",
+    "1102" = "min_relative_humidity",
+    "1200" = "mean_atmospheric_pressure",
+    "1201" = "max_atmospheric_pressure",
+    "1202" = "min_atmospheric_pressure",
+    "1300" = "precipitation",
+    "1301" = "precipitation_8h_8h",
+    "1302" = "max_precipitation_minute",
+    "1303" = "max_precipitation_hour",
+    "1304" = "max_precipitation_30m",
+    "1305" = "max_precipitation_10m",
+    "1400" = "global_solar_radiation",
+    "1505" = "mean_wind_speed",
+    "1511" = "mean_wind_direction",
+    "1514" = "max_wind_speed",
+    "1517" = "max_wind_direction",
+    "1600" = "mean_snow_cover",
+    "1601" = "max_snow_cover",
+    "1602" = "new_snow_cover",
+    "1603" = "min_snow_cover",
+    "1700" = "reference_evapotranspiration",
     # monthly
-    '2000' = 'mean_temperature',
-    '2001' = 'max_temperature_absolute',
-    '2002' = 'min_temperature_absolute',
-    '2003' = 'max_temperature_mean',
-    '2004' = 'min_temperature_mean',
-    '2100' = 'mean_relative_humidity',
-    '2101' = 'max_relative_humidity_absolute',
-    '2102' = 'min_relative_humidity_absolute',
-    '2103' = 'max_relative_humidity_mean',
-    '2104' = 'min_relative_humidity_mean',
-    '2300' = 'precipitation',
-    '2400' = 'global_solar_radiation',
-    '2505' = 'mean_wind_speed',
-    '2511' = 'mean_wind_direction',
+    "2000" = "mean_temperature",
+    "2001" = "max_temperature_absolute",
+    "2002" = "min_temperature_absolute",
+    "2003" = "max_temperature_mean",
+    "2004" = "min_temperature_mean",
+    "2005" = "mean_temperature_classic",
+    "2006" = "frost_days",
+    "2007" = "max_thermal_amplitude",
+    "2008" = "mean_thermal_amplitude",
+    "2009" = "extreme_thermal_amplitude",
+    "2100" = "mean_relative_humidity",
+    "2101" = "max_relative_humidity_absolute",
+    "2102" = "min_relative_humidity_absolute",
+    "2103" = "max_relative_humidity_mean",
+    "2104" = "min_relative_humidity_mean",
+    "2200" = "mean_atmospheric_pressure",
+    "2201" = "max_atmospheric_pressure_absolute",
+    "2202" = "min_atmospheric_pressure_absolute",
+    "2203" = "max_atmospheric_pressure_mean",
+    "2204" = "min_atmospheric_pressure_mean",
+    "2300" = "precipitation",
+    "2301" = "precipitation_8h_8h",
+    "2302" = "max_precipitation_minute",
+    "2303" = "max_precipitation_24h",
+    "2304" = "max_precipitation_24h_8h_8h",
+    "2305" = "rain_days_0",
+    "2306" = "rain_days_02",
+    "2307" = "max_precipitation_hour",
+    "2308" = "max_precipitation_30m",
+    "2309" = "max_precipitation_10m",
+    "2400" = "global_solar_radiation",
+    "2505" = "mean_wind_speed",
+    "2511" = "mean_wind_direction",
+    "2514" = "max_wind_speed",
+    "2517" = "max_wind_direction",
+    "2520" = "max_wind_speed_mean",
+    "2600" = "mean_snow_cover",
+    "2601" = "max_snow_cover",
+    "2602" = "new_snow_cover",
     # yearly
-    '3000' = 'mean_temperature',
-    '3001' = 'max_temperature_absolute',
-    '3002' = 'min_temperature_absolute',
-    '3003' = 'max_temperature_mean',
-    '3004' = 'min_temperature_mean',
-    '3100' = 'mean_relative_humidity',
-    '3101' = 'max_relative_humidity_absolute',
-    '3102' = 'min_relative_humidity_absolute',
-    '3103' = 'max_relative_humidity_mean',
-    '3104' = 'min_relative_humidity_mean',
-    '3300' = 'precipitation',
-    '3400' = 'global_solar_radiation',
-    '3505' = 'mean_wind_speed',
-    '3511' = 'mean_wind_direction'
+    "3000" = "mean_temperature",
+    "3001" = "max_temperature_absolute",
+    "3002" = "min_temperature_absolute",
+    "3003" = "max_temperature_mean",
+    "3004" = "min_temperature_mean",
+    "3005" = "mean_temperature_classic",
+    "3006" = "frost_days",
+    "3007" = "max_thermal_amplitude",
+    "3008" = "mean_thermal_amplitude",
+    "3009" = "extreme_thermal_amplitude",
+    "3010" = "thermal_oscillation",
+    "3100" = "mean_relative_humidity",
+    "3101" = "max_relative_humidity_absolute",
+    "3102" = "min_relative_humidity_absolute",
+    "3103" = "max_relative_humidity_mean",
+    "3104" = "min_relative_humidity_mean",
+    "3200" = "mean_atmospheric_pressure",
+    "3201" = "max_atmospheric_pressure_absolute",
+    "3202" = "min_atmospheric_pressure_absolute",
+    "3203" = "max_atmospheric_pressure_mean",
+    "3204" = "min_atmospheric_pressure_mean",
+    "3300" = "precipitation",
+    "3301" = "precipitation_8h_8h",
+    "3302" = "max_precipitation_minute",
+    "3303" = "max_precipitation_24h",
+    "3304" = "max_precipitation_24h_8h_8h",
+    "3305" = "rain_days_0",
+    "3306" = "rain_days_02",
+    "3307" = "max_precipitation_hour",
+    "3308" = "max_precipitation_30m",
+    "3309" = "max_precipitation_10m",
+    "3400" = "global_solar_radiation",
+    "3505" = "mean_wind_speed",
+    "3511" = "mean_wind_direction",
+    "3514" = "max_wind_speed",
+    "3517" = "max_wind_direction",
+    "3520" = "max_wind_speed_mean",
+    "3600" = "mean_snow_cover",
+    "3601" = "max_snow_cover",
+    "3602" = "new_snow_cover"
   )
 
   code_dictionary[as.character(codes)]
@@ -108,22 +176,26 @@ legal_note_style <- cli::combine_ansi_styles('blue', 'underline')
 relocate_vars <- function(data) {
   data |>
     dplyr::relocate(
-      dplyr::matches('timestamp'),
-      dplyr::matches('service'),
-      dplyr::contains('station'),
-      dplyr::contains('altitude'),
-      dplyr::starts_with('temperature'),
-      dplyr::starts_with('mean_temperature'),
-      dplyr::starts_with('min_temperature'),
-      dplyr::starts_with('max_temperature'),
-      dplyr::starts_with('relative_humidity'),
-      dplyr::starts_with('mean_relative_humidity'),
-      dplyr::starts_with('min_relative_humidity'),
-      dplyr::starts_with('max_relative_humidity'),
-      dplyr::contains('precipitation'),
-      dplyr::contains('direction'),
-      dplyr::contains('speed'),
-      dplyr::contains('sol'),
+      dplyr::matches("timestamp"),
+      dplyr::matches("service"),
+      dplyr::contains("station"),
+      dplyr::contains("altitude"),
+      dplyr::starts_with("temperature"),
+      dplyr::starts_with("mean_temperature"),
+      dplyr::starts_with("min_temperature"),
+      dplyr::starts_with("max_temperature"),
+      dplyr::contains("thermal"),
+      dplyr::starts_with("relative_humidity"),
+      dplyr::starts_with("mean_relative_humidity"),
+      dplyr::starts_with("min_relative_humidity"),
+      dplyr::starts_with("max_relative_humidity"),
+      dplyr::contains("precipitation"),
+      dplyr::contains("direction"),
+      dplyr::contains("speed"),
+      dplyr::contains("sol"),
+      dplyr::contains("pressure"),
+      dplyr::contains("snow"),
+      dplyr::contains("evapotranspiration"),
       "geometry"
     )
 }
@@ -152,13 +224,16 @@ relocate_vars <- function(data) {
   # persists, stop.
   # For that we use api_options$while_number. If it is null or less than one repeat,
   # if not, stop
-  while (is.null(api_options$while_number) || api_options$while_number < 1) {
+  while (is.null(api_options$while_number) || api_options$while_number > 0) {
+    if (is.null(api_options$while_number)) {
+      api_options$while_number <- 3
+    }
     cli::cli_inform(c(
       i = copyright_style(api_status_check$message),
-      "Trying again in 60 seconds"
+      "Trying again in 60 seconds (retry {4 - api_options$while_number} of 3)"
     ))
     Sys.sleep(60)
-    api_options$while_number <- 1
+    api_options$while_number <- api_options$while_number - 1
     return(.f(api_options))
   }
   cli::cli_abort(c(
@@ -332,12 +407,44 @@ safe_api_access <- function(type = c('rest', 'xml'), ...) {
 
   # checks and errors
   if (is.null(response$result)) {
+    # browser()
     din_dots <- rlang::list2(...)
-    cli::cli_abort(c(
+    cli::cli_warn(c(
       "Unable to connect to API at {.url {din_dots[[1]]}}: {.val {response$error}}",
       i = "This usually happens when connection with {.url {din_dots[[1]]}} is not possible."
     ))
+    return(NULL)
   }
 
   return(response$result)
+}
+
+# cache functions
+.get_cached_result <- function(cache_ref, x) {
+  # logic:
+  # if cache_ref exists, return its value.
+  # cache is an internal package object created on load
+  if (apis_cache$exists(cache_ref)) {
+    return(apis_cache$get(cache_ref))
+  }
+
+  # if not create the cache with the evaluation of x and return that result
+  res <- eval(x)
+  apis_cache$set(cache_ref, res)
+  return(res)
+}
+
+#' Clear all cached results
+#'
+#' Reset the internal cache used to limit the API requests.
+#'
+#' Cached results reduces the number of API requests, but sometimes we need
+#' fresh results without restarting the R session. \code{clear_meteospain_cache} function
+#' reset the cache for the actual R session.
+#'
+#' @export
+clear_meteospain_cache <- function() {
+  apis_cache$reset()
+  cli::cli_alert_success("Cache cleared sucessfully")
+  return(invisible(TRUE))
 }

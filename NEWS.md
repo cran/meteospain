@@ -1,3 +1,20 @@
+# meteospain 0.2.1
+
+* All APIs:
+  - Updated variables returned (data more complete) in all temporal scales
+    with focus on atmospheric pressure (#19, #27, #28)
+* New cache method. `memoise` dependency is dropped and `cachem` is used directly.
+  - new cache reduces significantly API calls, especially in meteocat (#29).
+  - new cache avoids caching temporal resolutions below daily, where data changes
+    between API calls (#29).
+* MeteoCat API:
+  - Updated variables returned for all temporal resolutions. Now all possible
+    variables are returned (#28).
+  - timestamp values are now floored accordingly to the temporal resolution (#30)
+* AEMET API:
+  - Updated API errors managing. Retry number when curl error occurs increased
+    to 2. Also added 0.4 seconds of wait between API calls.
+
 # meteospain 0.2.0
 
 * MeteoCat API:

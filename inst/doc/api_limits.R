@@ -15,6 +15,7 @@ library(meteospain)
 library(sf)
 
 ## ----aemet_limit, error=TRUE, eval=NOT_CRAN-----------------------------------
+try({
 # aemet api has a limit for 15 days in daily:
 get_meteo_from(
   'aemet',
@@ -37,6 +38,7 @@ get_meteo_from(
     stations = "0149X"
   )
 )
+})
 
 ## ----manual, eval=NOT_CRAN----------------------------------------------------
 res_1990_jan_1 <- get_meteo_from(

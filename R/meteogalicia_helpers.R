@@ -96,41 +96,49 @@
   path_resolution <- c(
     'mgrss', 'observacion', 'listaEstacionsMeteo.action'
   )
-  # api response
-  api_response <- safe_api_access(
-    type = 'rest',
-    "https://servizos.meteogalicia.gal",
-    config = list(http_version = 2),
-    path = path_resolution,
-    httr::user_agent('https://github.com/emf-creaf/meteospain')
-  )
+  # cache
+  cache_ref <- rlang::hash(path_resolution)
 
-  # Status check ------------------------------------------------------------------------------------------
-  if (api_response$status_code != 200) {
-    cli::cli_abort(c(
-      "Unable to connect to meteogalicia API at {.url {api_response$url}}"
-    ))
-  }
+  # get data from cache or from API if new
+  info_meteogalicia <- .get_cached_result(cache_ref, {
+    # api response
+    api_response <- safe_api_access(
+      type = 'rest',
+      "https://servizos.meteogalicia.gal",
+      config = list(http_version = 2),
+      path = path_resolution,
+      httr::user_agent('https://github.com/emf-creaf/meteospain')
+    )
+
+    # Status check ------------------------------------------------------------------------------------------
+    if (api_response$status_code != 200) {
+      cli::cli_abort(c(
+        "Unable to connect to meteogalicia API at {.url {api_response$url}}"
+      ))
+    }
 
 
-  # Data --------------------------------------------------------------------------------------------------
-  response_content <- jsonlite::fromJSON(httr::content(api_response, as = 'text'))
+    # Data --------------------------------------------------------------------------------------------------
+    response_content <- jsonlite::fromJSON(httr::content(api_response, as = 'text'))
 
-  # Meteogalicia returns a list, with one element called listaEstacionsMeteo, that is parsed directly to
-  # a data.frame with all the info. We work with that.
-  response_content$listaEstacionsMeteo |>
-    dplyr::as_tibble() |>
-    dplyr::mutate(service = 'meteogalicia') |>
-    .info_table_checker() |>
-    dplyr::select(
-      "service", station_id = "idEstacion", station_name = "estacion", station_province = "provincia",
-      "altitude", "lat", "lon"
-    ) |>
-    dplyr::mutate(
-      station_id = as.character(.data$station_id),
-      altitude = units::set_units(.data$altitude, "m")
-    ) |>
-    sf::st_as_sf(coords = c('lon', 'lat'), crs = 4326)
+    # Meteogalicia returns a list, with one element called listaEstacionsMeteo, that is parsed directly to
+    # a data.frame with all the info. We work with that.
+    response_content$listaEstacionsMeteo |>
+      dplyr::as_tibble() |>
+      dplyr::mutate(service = 'meteogalicia') |>
+      .info_table_checker() |>
+      dplyr::select(
+        "service", station_id = "idEstacion", station_name = "estacion", station_province = "provincia",
+        "altitude", "lat", "lon"
+      ) |>
+      dplyr::mutate(
+        station_id = as.character(.data$station_id),
+        altitude = units::set_units(.data$altitude, "m")
+      ) |>
+      sf::st_as_sf(coords = c('lon', 'lat'), crs = 4326)
+  })
+
+  return(info_meteogalicia)
 
 }
 
@@ -146,118 +154,126 @@
 #' @noRd
 .get_data_meteogalicia <- function(api_options) {
 
-
-  # GET ---------------------------------------------------------------------------------------------------
   # api path
   path_resolution <- .create_meteogalicia_path(api_options)
   # get api query
   query_resolution <- .create_meteogalicia_query(api_options)
-  # get the api response
-  api_response <- safe_api_access(
-    type = 'rest',
-    "https://servizos.meteogalicia.gal",
-    config = list(http_version = 2),
-    path = path_resolution,
-    query = query_resolution,
-    httr::user_agent('https://github.com/emf-creaf/meteospain')
-  )
 
+  # cache (in this case with path and query to get the date also)
+  cache_ref <- rlang::hash(c(path_resolution, query_resolution))
 
-  # Status check ------------------------------------------------------------------------------------------
-  # bad stations return code 500
-  if (api_response$status_code %in% c(500L, 404L)) {
-    cli::cli_abort(c(
-      "MeteoGalicia API returned an error:",
-      stringr::str_remove_all(
-        httr::content(api_response, 'text'),
-        '<.*?>|\\t|\\n|<!DOCTYPE((.|\n|\r)*?)(\"|])>'
-      ),
-      i = 'This usually happens when unknown station ids are supplied.'
+  # if resolution less than daily, remove the cache
+  if (api_options$resolution %in% c("instant", "current_day")) {
+    apis_cache$remove(cache_ref)
+  }
+
+  data_meteogalicia <- .get_cached_result(cache_ref, {
+    # GET ---------------------------------------------------------------------------------------------------
+    # get the api response
+    api_response <- safe_api_access(
+      type = 'rest',
+      "https://servizos.meteogalicia.gal",
+      config = list(http_version = 2),
+      path = path_resolution,
+      query = query_resolution,
+      httr::user_agent('https://github.com/emf-creaf/meteospain')
+    )
+    # Status check ------------------------------------------------------------------------------------------
+    # bad stations return code 500
+    if (api_response$status_code %in% c(500L, 404L)) {
+      cli::cli_abort(c(
+        "MeteoGalicia API returned an error:",
+        stringr::str_remove_all(
+          httr::content(api_response, 'text'),
+          '<.*?>|\\t|\\n|<!DOCTYPE((.|\n|\r)*?)(\"|])>'
+        ),
+        i = 'This usually happens when unknown station ids are supplied.'
+      ))
+    }
+    # check any other codes besides 200
+    if (api_response$status_code != 200) {
+      cli::cli_abort(c(
+        "Unable to connect to meteogalicia API at {.url {api_response$url}}"
+      ))
+    }
+    # Check when html with error is returned (bad stations)
+    # LEGACY, bad stations now are reported with error 500 in the new meteogalicia API
+    if (httr::http_type(api_response) != "application/json") {
+      cli::cli_abort(c(
+        "MeteoGalicia API returned an error:",
+        stringr::str_remove_all(
+          httr::content(api_response, 'text'),
+          '<.*?>|\\t|\\n|<!DOCTYPE((.|\n|\r)*?)(\"|])>'
+        ),
+        i = 'This usually happens when unknown station ids are supplied.'
+      ))
+    }
+    # response content
+    response_content <- jsonlite::fromJSON(httr::content(api_response, as = 'text'))
+    # Check when empty lists are returned (bad dates)
+    if (length(response_content[[1]]) < 1) {
+      cli::cli_abort(c(
+        "MeteoGalicia API returned no data:\n",
+        i = "This usually happens when there is no data for the dates supplied."
+      ))
+    }
+    # Resolution specific carpentry -------------------------------------------------------------------------
+    # Now, resolutions have differences, in the component names of the list returned and also in variables
+    # returned. So we create specific functions for each resolution and use a common pipe (see aemet.helpers
+    # for a more complete rationale)
+    resolution_specific_unnesting <- switch(
+      api_options$resolution,
+      'instant' = .meteogalicia_instant_unnesting,
+      'current_day' = .meteogalicia_current_day_unnesting,
+      'daily' = .meteogalicia_daily_unnesting,
+      'monthly' = .meteogalicia_monthly_unnesting
+    )
+    resolution_specific_carpentry <- switch(
+      api_options$resolution,
+      'instant' = .meteogalicia_instant_carpentry,
+      'current_day' = .meteogalicia_current_day_carpentry,
+      'daily' = .meteogalicia_daily_carpentry,
+      'monthly' = .meteogalicia_monthly_carpentry
+    )
+    resolution_specific_joinvars <- c('service', 'station_id', 'station_name')
+    if (api_options$resolution %in% c('daily', 'monthly')) {
+      resolution_specific_joinvars <- c(resolution_specific_joinvars, 'station_province')
+    }
+    # Data transformation -----------------------------------------------------------------------------------
+    res <-
+      resolution_specific_unnesting(response_content) |>
+      # final unnest, common to all resolutions
+      unnest_safe("listaMedidas") |>
+      # remove the non valid data (0 == no validated data, 3 = wrong data, 9 = data not registered)
+      dplyr::filter(!.data$lnCodigoValidacion %in% c(0, 3, 9)) |>
+      # remove unwanted variables
+      dplyr::select(-"lnCodigoValidacion", -"nomeParametro", -"unidade") |>
+      # now, some stations can have errors in the sense of duplicated precipitation values.
+      # We get the first record
+      tidyr::pivot_wider(
+        names_from = "codigoParametro", values_from = "valor", values_fn = dplyr::first
+      ) |>
+      # resolution-specific transformations
+      resolution_specific_carpentry() |>
+      dplyr::arrange(.data$timestamp, .data$station_id) |>
+      dplyr::left_join(.get_info_meteogalicia(), by = resolution_specific_joinvars) |>
+      # reorder variables to be consistent among all services
+      relocate_vars() |>
+      sf::st_as_sf()
+
+    # Copyright message -------------------------------------------------------------------------------------
+    cli::cli_inform(c(
+      i = copyright_style("A informaci\u00F3n divulgada a trav\u00E9s deste servidor ofr\u00E9cese gratuitamente aos cidad\u00E1ns para que poida ser"),
+      copyright_style("utilizada libremente por eles, co \u00FAnico compromiso de mencionar expresamente a MeteoGalicia e \u00E1"),
+      copyright_style("Conseller\u00EDa de Medio Ambiente, Territorio e Vivenda da Xunta de Galicia como fonte da mesma cada vez"),
+      copyright_style("que as utilice para os usos distintos do particular e privado."),
+      legal_note_style("https://www.meteogalicia.gal/aviso-legal")
     ))
-  }
-  # check any other codes besides 200
-  if (api_response$status_code != 200) {
-    cli::cli_abort(c(
-      "Unable to connect to meteogalicia API at {.url {api_response$url}}"
-    ))
-  }
-  # Check when html with error is returned (bad stations)
-  # LEGACY, bad stations now are reported with error 500 in the new meteogalicia API
-  if (httr::http_type(api_response) != "application/json") {
-    cli::cli_abort(c(
-      "MeteoGalicia API returned an error:",
-      stringr::str_remove_all(
-        httr::content(api_response, 'text'),
-        '<.*?>|\\t|\\n|<!DOCTYPE((.|\n|\r)*?)(\"|])>'
-      ),
-      i = 'This usually happens when unknown station ids are supplied.'
-    ))
-  }
-  # response content
-  response_content <- jsonlite::fromJSON(httr::content(api_response, as = 'text'))
-  # Check when empty lists are returned (bad dates)
-  if (length(response_content[[1]]) < 1) {
-    cli::cli_abort(c(
-      "MeteoGalicia API returned no data:\n",
-      i = "This usually happens when there is no data for the dates supplied."
-    ))
-  }
 
-  # Resolution specific carpentry -------------------------------------------------------------------------
-  # Now, resolutions have differences, in the component names of the list returned and also in variables
-  # returned. So we create specific functions for each resolution and use a common pipe (see aemet.helpers
-  # for a more complete rationale)
-  resolution_specific_unnesting <- switch(
-    api_options$resolution,
-    'instant' = .meteogalicia_instant_unnesting,
-    'current_day' = .meteogalicia_current_day_unnesting,
-    'daily' = .meteogalicia_daily_unnesting,
-    'monthly' = .meteogalicia_monthly_unnesting
-  )
-  resolution_specific_carpentry <- switch(
-    api_options$resolution,
-    'instant' = .meteogalicia_instant_carpentry,
-    'current_day' = .meteogalicia_current_day_carpentry,
-    'daily' = .meteogalicia_daily_carpentry,
-    'monthly' = .meteogalicia_monthly_carpentry
-  )
-  resolution_specific_joinvars <- c('service', 'station_id', 'station_name')
-  if (api_options$resolution %in% c('daily', 'monthly')) {
-    resolution_specific_joinvars <- c(resolution_specific_joinvars, 'station_province')
-  }
+    res
+  })
 
-  # Data transformation -----------------------------------------------------------------------------------
-  res <-
-    resolution_specific_unnesting(response_content) |>
-    # final unnest, common to all resolutions
-    unnest_safe("listaMedidas") |>
-    # remove the non valid data (0 == no validated data, 3 = wrong data, 9 = data not registered)
-    dplyr::filter(!.data$lnCodigoValidacion %in% c(0, 3, 9)) |>
-    # remove unwanted variables
-    dplyr::select(-"lnCodigoValidacion", -"nomeParametro", -"unidade") |>
-    # now, some stations can have errors in the sense of duplicated precipitation values.
-    # We get the first record
-    tidyr::pivot_wider(
-      names_from = "codigoParametro", values_from = "valor", values_fn = dplyr::first
-    ) |>
-    # resolution-specific transformations
-    resolution_specific_carpentry() |>
-    dplyr::arrange(.data$timestamp, .data$station_id) |>
-    dplyr::left_join(.get_info_meteogalicia(), by = resolution_specific_joinvars) |>
-    # reorder variables to be consistent among all services
-    relocate_vars() |>
-    sf::st_as_sf()
-
-  # Copyright message -------------------------------------------------------------------------------------
-  cli::cli_inform(c(
-    i = copyright_style("A informaci\u00F3n divulgada a trav\u00E9s deste servidor ofr\u00E9cese gratuitamente aos cidad\u00E1ns para que poida ser"),
-    copyright_style("utilizada libremente por eles, co \u00FAnico compromiso de mencionar expresamente a MeteoGalicia e \u00E1"),
-    copyright_style("Conseller\u00EDa de Medio Ambiente, Territorio e Vivenda da Xunta de Galicia como fonte da mesma cada vez"),
-    copyright_style("que as utilice para os usos distintos do particular e privado."),
-    legal_note_style("https://www.meteogalicia.gal/web/informacion/notaIndex.action")
-  ))
-
-  return(res)
+  return(data_meteogalicia)
 }
 
 
@@ -296,33 +312,63 @@
     # select step to fail. We create missing variables and populate them with NAs to avoid this error
     .create_missing_vars(
       var_names = c(
-        'TA_AVG_1.5m', 'DV_AVG_2m', 'VV_AVG_2m', 'HR_AVG_1.5m',
-        'PP_SUM_1.5m', 'HSOL_SUM_1.5m', 'RS_AVG_1.5m'
+        # temperatures
+        "TA_AVG_1.5m", "TS_AVG_-0.1m", "TS_AVG_-0.5m",
+        # humidities
+        "HR_AVG_1.5m",
+        # precipitation
+        "PP_SUM_1.5m",
+        # winds
+        "DV_AVG_2m", "VV_AVG_2m", "VV_RACHA_2m", "	DV_CONDICION_2m",
+        # radiations
+        "RS_AVG_1.5m", "HSOL_SUM_1.5m", "RREF_AVG_1.5m", "BIO_AVG_1.5m",
+        # pressures
+        "PR_AVG_1.5m", "PRED_AVG_1.5m",
+        # soil moisture
+        "HS_CV_AVG_-0.2m"
       )
     ) |>
     dplyr::select(
       timestamp = "instanteLecturaUTC", station_id = "idEstacion", station_name = "estacion",
+      # temperatures
       temperature = "TA_AVG_1.5m",
-      wind_direction = "DV_AVG_2m",
-      wind_speed = "VV_AVG_2m",
+      temperature_soil_100 = "TS_AVG_-0.1m", temperature_soil_500 = "TS_AVG_-0.5m",
+      # humidities
       relative_humidity = "HR_AVG_1.5m",
+      # precipitation
       precipitation = "PP_SUM_1.5m",
-      insolation = "HSOL_SUM_1.5m"
-      # global_solar_radiation = "RS_AVG_1.5m"
+      # winds
+      wind_direction = "DV_AVG_2m", wind_speed = "VV_AVG_2m",
+      max_wind_speed = "VV_RACHA_2m", max_wind_direction = "DV_CONDICION_2m",
+      # radiations
+      global_solar_radiation = "RS_AVG_1.5m",
+      insolation = "HSOL_SUM_1.5m",
+      reflected_radiation = "RREF_AVG_1.5m", uv_radiation = "BIO_AVG_1.5m",
+      # pressures
+      atmospheric_pressure = "PR_AVG_1.5m", atmospheric_pressure_reduced = "PRED_AVG_1.5m",
+      # soil moisture
+      soil_moisture = "HS_CV_AVG_-0.2m"
     ) |>
     dplyr::mutate(
       timestamp = lubridate::as_datetime(.data$timestamp),
       service = 'meteogalicia',
       station_id = as.character(.data$station_id),
       temperature = units::set_units(.data$temperature, "degree_C"),
-      wind_direction = units::set_units(.data$wind_direction, "degree"),
-      wind_speed = units::set_units(.data$wind_speed, "m/s"),
+      temperature_soil_100 = units::set_units(.data$temperature_soil_100, "degree_C"),
+      temperature_soil_500 = units::set_units(.data$temperature_soil_500, "degree_C"),
       relative_humidity = units::set_units(.data$relative_humidity, "%"),
       precipitation = units::set_units(.data$precipitation, "L/m^2"),
-      insolation = units::set_units(.data$insolation, "h")
-      # global_solar_radiation = units::set_units(
-      #   units::set_units(.data$global_solar_radiation, "J/s/m^2") * insolation, 'MJ/m^2'
-      # )
+      wind_direction = units::set_units(.data$wind_direction, "degree"),
+      wind_speed = units::set_units(.data$wind_speed, "m/s"),
+      max_wind_speed = units::set_units(.data$max_wind_speed, "m/s"),
+      max_wind_direction = units::set_units(.data$max_wind_direction, "degree"),
+      global_solar_radiation = units::set_units(.data$global_solar_radiation, "W/m^2"),
+      insolation = units::set_units(.data$insolation, "hours"),
+      reflected_radiation = units::set_units(.data$reflected_radiation, "W/m^2"),
+      uv_radiation = units::set_units(.data$uv_radiation, "W/m^2"),
+      atmospheric_pressure = units::set_units(.data$atmospheric_pressure, "hPa"),
+      atmospheric_pressure_reduced = units::set_units(.data$atmospheric_pressure_reduced, "hPa"),
+      soil_moisture = units::set_units(.data$soil_moisture, "m^3/m^3")
     )
 }
 .meteogalicia_current_day_carpentry <- function(data) {
@@ -331,19 +377,31 @@
     # select step to fail. We create missing variables and populate them with NAs to avoid this error
     .create_missing_vars(
       var_names = c(
-        'TA_AVG_1.5m', 'TA_MIN_1.5m', 'TA_MAX_1.5m', 'DV_AVG_2m', 'VV_AVG_2m',
-        'HR_AVG_1.5m', 'PP_SUM_1.5m', 'HSOL_SUM_1.5m'
+        # temperatures
+        "TA_AVG_1.5m", "TA_MIN_1.5m", "TA_MAX_1.5m",
+        # humidities
+        "HR_AVG_1.5m",
+        # Precipitations
+        "PP_SUM_1.5m", "IP_MAX_1.5m",
+        # winds
+        "DV_AVG_2m", "VV_AVG_2m", "VV_RACHA_2m", "DV_CONDICION_2m",
+        # radiations
+        "HSOL_SUM_1.5m"
       )
     ) |>
     dplyr::select(
       timestamp = "instanteLecturaUTC", station_id = "idEstacion", station_name = "estacion",
+      # temperatures
       temperature = "TA_AVG_1.5m",
-      min_temperature = "TA_MIN_1.5m",
-      max_temperature = "TA_MAX_1.5m",
-      wind_direction = "DV_AVG_2m",
-      wind_speed = "VV_AVG_2m",
+      min_temperature = "TA_MIN_1.5m", max_temperature = "TA_MAX_1.5m",
+      # humidities
       relative_humidity = "HR_AVG_1.5m",
-      precipitation = "PP_SUM_1.5m",
+      # Precipitations
+      precipitation = "PP_SUM_1.5m", max_precipitation_hour = "IP_MAX_1.5m",
+      # winds
+      wind_direction = "DV_AVG_2m", wind_speed = "VV_AVG_2m",
+      max_wind_speed = "VV_RACHA_2m", max_wind_direction = "DV_CONDICION_2m",
+      # radiations
       insolation = "HSOL_SUM_1.5m"
     ) |>
     dplyr::mutate(
@@ -353,11 +411,14 @@
       temperature = units::set_units(.data$temperature, "degree_C"),
       min_temperature = units::set_units(.data$min_temperature, "degree_C"),
       max_temperature = units::set_units(.data$max_temperature, "degree_C"),
-      wind_direction = units::set_units(.data$wind_direction, "degree"),
-      wind_speed = units::set_units(.data$wind_speed, "m/s"),
       relative_humidity = units::set_units(.data$relative_humidity, "%"),
       precipitation = units::set_units(.data$precipitation, "L/m^2"),
-      insolation = units::set_units(.data$insolation, "h")
+      max_precipitation_hour = units::set_units(.data$max_precipitation_hour, "L/m^2/h"),
+      wind_direction = units::set_units(.data$wind_direction, "degree"),
+      wind_speed = units::set_units(.data$wind_speed, "m/s"),
+      max_wind_speed = units::set_units(.data$max_wind_speed, "m/s"),
+      max_wind_direction = units::set_units(.data$max_wind_direction, "degree"),
+      insolation = units::set_units(.data$insolation, "hours")
     )
 }
 .meteogalicia_daily_carpentry <- function(data) {
@@ -366,23 +427,44 @@
     # select step to fail. We create missing variables and populate them with NAs to avoid this error
     .create_missing_vars(
       var_names = c(
-        'TA_AVG_1.5m', 'TA_MIN_1.5m', 'TA_MAX_1.5m', 'DV_AVG_2m', 'VV_AVG_2m',
-        'HR_AVG_1.5m', 'HR_MIN_1.5m', 'HR_MAX_1.5m', 'PP_SUM_1.5m', 'HSOL_SUM_1.5m'
+        # temperatures
+        "TA_AVG_1.5m", "TA_MIN_1.5m", "TA_MAX_1.5m", "TS_AVG_-0.1m",
+        # humidities
+        "HR_AVG_1.5m", "HR_MIN_1.5m", "HR_MAX_1.5m",
+        # precipitations
+        "PP_SUM_1.5m", "ET0_SUM_1.5m",
+        # winds
+        "DVP_MODA_2m", "VV_AVG_2m", "VV_MAX_2m", "DV_CONDICION_2m",
+        # radiations
+        "HSOL_SUM_1.5m", "IUVX_MAX_1.5m", "INS_RATIO_1.5m", "IRD_SUM_1.5m",
+        # pressures
+        "PR_AVG_1.5m", "PRED_AVG_1.5m",
+        # soil moisture
+        "HS_CV_AVG_-0.2m"
       )
     ) |>
     dplyr::select(
       timestamp = "data",
       station_id = "idEstacion", station_name = "estacion", station_province = "provincia",
-      mean_temperature = "TA_AVG_1.5m",
-      min_temperature = "TA_MIN_1.5m",
-      max_temperature = "TA_MAX_1.5m",
-      mean_wind_direction = "DV_AVG_2m",
-      mean_wind_speed = "VV_AVG_2m",
+      # temperatures
+      mean_temperature = "TA_AVG_1.5m", min_temperature = "TA_MIN_1.5m",
+      max_temperature = "TA_MAX_1.5m", mean_soil_temperature = "TS_AVG_-0.1m",
+      # humidities
       mean_relative_humidity = "HR_AVG_1.5m",
-      min_relative_humidity = "HR_MIN_1.5m",
-      max_relative_humidity = "HR_MAX_1.5m",
-      precipitation = "PP_SUM_1.5m",
-      insolation = "HSOL_SUM_1.5m"
+      min_relative_humidity = "HR_MIN_1.5m", max_relative_humidity = "HR_MAX_1.5m",
+      # precipitations
+      precipitation = "PP_SUM_1.5m", reference_evapotranspiration = "ET0_SUM_1.5m",
+      # winds
+      mean_wind_direction = "DVP_MODA_2m", mean_wind_speed = "VV_AVG_2m",
+      max_wind_speed = "VV_MAX_2m", max_wind_direction = "DV_CONDICION_2m",
+      # radiations
+      insolation = "HSOL_SUM_1.5m", uv_radiation_index = "IUVX_MAX_1.5m",
+      insolation_ratio = "INS_RATIO_1.5m", global_solar_irradiation = "IRD_SUM_1.5m",
+      # pressures
+      mean_atmospheric_pressure = "PR_AVG_1.5m",
+      atmospheric_pressure_reduced = "PRED_AVG_1.5m",
+      # soil moisture
+      soil_moisture = "HS_CV_AVG_-0.2m"
     ) |>
     dplyr::mutate(
       timestamp = lubridate::as_datetime(.data$timestamp),
@@ -391,13 +473,23 @@
       mean_temperature = units::set_units(.data$mean_temperature, "degree_C"),
       min_temperature = units::set_units(.data$min_temperature, "degree_C"),
       max_temperature = units::set_units(.data$max_temperature, "degree_C"),
-      mean_wind_direction = units::set_units(.data$mean_wind_direction, "degree"),
-      mean_wind_speed = units::set_units(.data$mean_wind_speed, "m/s"),
+      mean_soil_temperature = units::set_units(.data$mean_soil_temperature, "degree_C"),
       mean_relative_humidity = units::set_units(.data$mean_relative_humidity, "%"),
       min_relative_humidity = units::set_units(.data$min_relative_humidity, "%"),
       max_relative_humidity = units::set_units(.data$max_relative_humidity, "%"),
       precipitation = units::set_units(.data$precipitation, "L/m^2"),
-      insolation = units::set_units(.data$insolation, "h")
+      reference_evapotranspiration = units::set_units(.data$reference_evapotranspiration, "L/m^2"),
+      mean_wind_direction = units::set_units(.data$mean_wind_direction, "degree"),
+      mean_wind_speed = units::set_units(.data$mean_wind_speed, "m/s"),
+      max_wind_speed = units::set_units(.data$max_wind_speed, "m/s"),
+      max_wind_direction = units::set_units(.data$max_wind_direction, "degree"),
+      insolation = units::set_units(.data$insolation, "hours"),
+      uv_radiation_index = units::set_units(.data$uv_radiation_index, ""),
+      insolation_ratio = units::set_units(.data$insolation_ratio, "%"),
+      global_solar_irradiation = units::set_units(.data$global_solar_irradiation, "kJ/m^2") / 10,
+      mean_atmospheric_pressure = units::set_units(.data$mean_atmospheric_pressure, "hPa"),
+      atmospheric_pressure_reduced = units::set_units(.data$atmospheric_pressure_reduced, "hPa"),
+      soil_moisture = units::set_units(.data$soil_moisture, "m^3/m^3")
     )
 }
 .meteogalicia_monthly_carpentry <- function(data) {
@@ -406,20 +498,47 @@
     # select step to fail. We create missing variables and populate them with NAs to avoid this error
     .create_missing_vars(
       var_names = c(
-        'TA_AVG_1.5m', 'TA_MIN_1.5m', 'TA_MAX_1.5m', 'VV_AVG_2m',
-        'HR_AVG_1.5m', 'PP_SUM_1.5m', 'HSOL_SUM_1.5m'
+        # temperatures
+        "TA_AVG_1.5m", "TA_MIN_1.5m", "TA_MAX_1.5m", "TS_AVG_-0.1m",
+        "TA_AVGMIN_1.5m", "TA_AVGMAX_1.5m",
+        # humidities
+        "HR_AVG_1.5m", "HR_AVGMAX_1.5m", "HR_AVGMIN_1.5m",
+        # precipitations
+        "PP_SUM_1.5m", "PP_MAX_1.5m", "NDPP_RECUENTO_1.5m", "NDPP1_RECUENTO_1.5m",
+        "NDPP10_RECUENTO_1.5m", "NDPP30_RECUENTO_1.5m", "NDPP1_RECUENTO_1.5m",
+        # winds
+        "DVP_MODA_2m", "VV_AVG_2m", "VV_MAX_2m", "DV_CONDICION_2m",
+        # radiations
+        "HSOL_SUM_1.5m", "INS_AVG_1.5m", "IRD_AVG_1.5m",
+        # pressures
+        "PR_AVG_1.5m", "PRED_AVG_1.5m"
       )
     ) |>
     dplyr::select(
       timestamp = "data",
       station_id = "idEstacion", station_name = "estacion", station_province = "provincia",
-      mean_temperature = "TA_AVG_1.5m",
-      min_temperature = "TA_MIN_1.5m",
-      max_temperature = "TA_MAX_1.5m",
-      mean_wind_speed = "VV_AVG_2m",
+      # temperatures
+      mean_temperature = "TA_AVG_1.5m", min_temperature = "TA_MIN_1.5m",
+      max_temperature = "TA_MAX_1.5m", mean_soil_temperature = "TS_AVG_-0.1m",
+      min_temperature_mean = "TA_AVGMIN_1.5m", max_temperature_mean = "TA_AVGMAX_1.5m",
+      # humidities
       mean_relative_humidity = "HR_AVG_1.5m",
-      precipitation = "PP_SUM_1.5m",
-      insolation = "HSOL_SUM_1.5m"
+      max_relative_humidity_mean = "HR_AVGMAX_1.5m",
+      min_relative_humidity_mean = "HR_AVGMIN_1.5m",
+      # precipitations
+      precipitation = "PP_SUM_1.5m", max_precipitation_24h = "PP_MAX_1.5m",
+      rain_days_0 = "NDPP_RECUENTO_1.5m", rain_days_01 = "NDPP1_RECUENTO_1.5m",
+      rain_days_10 = "NDPP10_RECUENTO_1.5m", rain_days_30 = "NDPP30_RECUENTO_1.5m",
+      rain_days_60 = "NDPP1_RECUENTO_1.5m",
+      # winds
+      mean_wind_direction = "DVP_MODA_2m", mean_wind_speed = "VV_AVG_2m",
+      max_wind_speed = "VV_MAX_2m", max_wind_direction = "DV_CONDICION_2m",
+      # radiations
+      insolation = "HSOL_SUM_1.5m", insolation_ratio = "INS_AVG_1.5m",
+      global_solar_irradiation = "IRD_AVG_1.5m",
+      # pressures
+      mean_atmospheric_pressure = "PR_AVG_1.5m",
+      atmospheric_pressure_reduced = "PRED_AVG_1.5m"
     ) |>
     dplyr::mutate(
       timestamp = lubridate::as_datetime(.data$timestamp),
@@ -428,13 +547,30 @@
       mean_temperature = units::set_units(.data$mean_temperature, "degree_C"),
       min_temperature = units::set_units(.data$min_temperature, "degree_C"),
       max_temperature = units::set_units(.data$max_temperature, "degree_C"),
-      mean_wind_speed = units::set_units(.data$mean_wind_speed, "m/s"),
+      mean_soil_temperature = units::set_units(.data$mean_soil_temperature, "degree_C"),
+      min_temperature_mean = units::set_units(.data$min_temperature_mean, "degree_C"),
+      max_temperature_mean = units::set_units(.data$max_temperature_mean, "degree_C"),
       mean_relative_humidity = units::set_units(.data$mean_relative_humidity, "%"),
+      max_relative_humidity_mean = units::set_units(.data$max_relative_humidity_mean, "%"),
+      min_relative_humidity_mean = units::set_units(.data$min_relative_humidity_mean, "%"),
       precipitation = units::set_units(.data$precipitation, "L/m^2"),
-      insolation = units::set_units(.data$insolation, "h")
+      max_precipitation_24h = units::set_units(.data$max_precipitation_24h, "L/m^2"),
+      rain_days_0 = units::set_units(.data$rain_days_0, "days"),
+      rain_days_01 = units::set_units(.data$rain_days_01, "days"),
+      rain_days_10 = units::set_units(.data$rain_days_10, "days"),
+      rain_days_30 = units::set_units(.data$rain_days_30, "days"),
+      rain_days_60 = units::set_units(.data$rain_days_60, "days"),
+      mean_wind_direction = units::set_units(.data$mean_wind_direction, "degree"),
+      mean_wind_speed = units::set_units(.data$mean_wind_speed, "m/s"),
+      max_wind_speed = units::set_units(.data$max_wind_speed, "m/s"),
+      max_wind_direction = units::set_units(.data$max_wind_direction, "degree"),
+      insolation = units::set_units(.data$insolation, "hours"),
+      insolation_ratio = units::set_units(.data$insolation_ratio, "%"),
+      global_solar_irradiation = units::set_units(.data$global_solar_irradiation, "kJ/m^2") / 10,
+      mean_atmospheric_pressure = units::set_units(.data$mean_atmospheric_pressure, "hPa"),
+      atmospheric_pressure_reduced = units::set_units(.data$atmospheric_pressure_reduced, "hPa")
     )
 }
-
 
 # info table checker ------------------------------------------------------------------------------------
 
