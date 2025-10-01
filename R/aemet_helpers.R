@@ -113,21 +113,24 @@
     res <- list(
       status = 'Error',
       code = 429,
-      message = glue::glue(
-        "API request truncated"
-      )
+      message = "API request truncated"
     )
     return(res)
   }
   
   response_status <- httr::status_code(api_response)
+  response_url <- api_response$url
+  response_message <- httr::http_status(api_response)$message
   # and now the status checks
   if (response_status == 404) {
     res <- list(
       status = 'Error',
       code = response_status,
-      message = glue::glue(
-        "Unable to connect to AEMET API at {api_response$url}: {httr::http_status(api_response)$message}"
+      message = paste0(
+        "Unable to connect to AEMET API at ",
+        response_url,
+        ": ",
+        response_message
       )
     )
     return(res)
@@ -137,7 +140,10 @@
     res <- list(
       status = 'Error',
       code = response_status,
-      message = glue::glue("Invalid API Key: {httr::http_status(api_response)$message}")
+      message = paste0(
+        "Invalid API Key: ",
+        response_message
+      )
     )
     return(res)
   }
@@ -146,8 +152,9 @@
     res <- list(
       status = 'Error',
       code = response_status,
-      message = glue::glue(
-        "API request limit reached: {httr::http_status(api_response)$message}"
+      message = paste0(
+        "API request limit reached: ",
+        response_message
       )
     )
     return(res)
@@ -170,7 +177,7 @@
       res <- list(
         status = 'Error',
         code =  response_status,
-        message = glue::glue("AEMET API returned an error: {html_text}")
+        message = paste0("AEMET API returned an error: ", html_text)
       )
     }
 
@@ -185,7 +192,7 @@
     res <- list(
       status = 'Error',
       code = response_content$estado,
-      message = glue::glue("AEMET API returned no data: {response_content$descripcion}")
+      message = paste0("AEMET API returned no data: ", response_content$descripcion)
     )
     return(res)
   }
@@ -219,12 +226,12 @@
   info_aemet <- .get_cached_result(cache_ref, {
 
     # create httr config to execute only if in linux, due to the ubuntu 20.04 update to seclevel 2
-    config_httr_aemet <- switch(
-      Sys.info()["sysname"],
-      'Linux' = httr::config(ssl_cipher_list = 'DEFAULT@SECLEVEL=1'),
-      httr::config()
-    )
-    # config_httr_aemet <- httr::config()
+    # config_httr_aemet <- switch(
+    #   Sys.info()["sysname"],
+    #   'Linux' = httr::config(ssl_cipher_list = 'DEFAULT@SECLEVEL=1', sslversion = 327680),
+    #   httr::config()
+    # )
+    config_httr_aemet <- httr::config()
 
     # Status check ------------------------------------------------------------------------------------------
     # now we need to check the status of the response (general status), and the status of the AEMET (specific
@@ -234,7 +241,7 @@
     # content parsed already
     api_status_check <- .check_status_aemet(
       "https://opendata.aemet.es",
-      httr::add_headers(api_key = api_options$api_key),
+      httr::add_headers(api_key = api_options$api_key, "Cache-Control" = "no-cache"),
       path = path_resolution,
       httr::user_agent('https://github.com/emf-creaf/meteospain'),
       config = config_httr_aemet
@@ -329,12 +336,12 @@
   # get data from cache or from API if new
   data_aemet <- .get_cached_result(cache_ref, {
     # create httr config to execute only if in linux, due to the ubuntu 20.04 update to seclevel 2
-    config_httr_aemet <- switch(
-      Sys.info()["sysname"],
-      'Linux' = httr::config(ssl_cipher_list = 'DEFAULT@SECLEVEL=1'),
-      httr::config()
-    )
-    # config_httr_aemet <- httr::config()
+    # config_httr_aemet <- switch(
+    #   Sys.info()["sysname"],
+    #   'Linux' = httr::config(ssl_cipher_list = 'DEFAULT@SECLEVEL=1', sslversion = 327680),
+    #   httr::config()
+    # )
+    config_httr_aemet <- httr::config()
   
     # GET and Status check ------------------------------------------------------------------------------------------
     # now we need to check the status of the response (general status), and the status of the AEMET (specific
@@ -344,12 +351,12 @@
     # content parsed already
     api_status_check <- .check_status_aemet(
       "https://opendata.aemet.es",
-      httr::add_headers(api_key = api_options$api_key),
+      httr::add_headers(api_key = api_options$api_key, "Cache-Control" = "no-cache"),
       path = path_resolution,
       httr::user_agent('https://github.com/emf-creaf/meteospain'),
       config = config_httr_aemet
     )
-  
+
     if (api_status_check$status != 'OK') {
       # if api request limit reached, do a recursive call to the function after 60 seconds
       if (api_status_check$code == 429) {

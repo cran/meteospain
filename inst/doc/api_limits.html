@@ -412,12 +412,12 @@ the calls necessary and join the results:</p>
 <span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a></span>
 <span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a>res_1990_jan <span class="ot">&lt;-</span> <span class="fu">rbind</span>(res_1990_jan_1, res_1990_jan_2)</span>
 <span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a>res_1990_jan</span>
-<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 5066 features and 19 fields</span></span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 4664 features and 19 fields</span></span>
 <span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a><span class="co">#&gt; Geometry type: POINT</span></span>
 <span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a><span class="co">#&gt; Dimension:     XY</span></span>
 <span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a><span class="co">#&gt; Bounding box:  xmin: -18.115 ymin: 27.72528 xmax: 4.215556 ymax: 43.65111</span></span>
 <span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a><span class="co">#&gt; Geodetic CRS:  WGS 84</span></span>
-<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a><span class="co">#&gt; # A tibble: 5,066 × 20</span></span>
+<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a><span class="co">#&gt; # A tibble: 4,664 × 20</span></span>
 <span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a><span class="co">#&gt;    timestamp           service station_id station_name station_province altitude</span></span>
 <span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a><span class="co">#&gt;  * &lt;dttm&gt;              &lt;chr&gt;   &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;                 [m]</span></span>
 <span id="cb3-37"><a href="#cb3-37" tabindex="-1"></a><span class="co">#&gt;  1 1990-01-01 00:00:00 aemet   0002I      &quot;VANDELLÒS … TARRAGONA              32</span></span>
@@ -430,7 +430,7 @@ the calls necessary and join the results:</p>
 <span id="cb3-44"><a href="#cb3-44" tabindex="-1"></a><span class="co">#&gt;  8 1990-01-01 00:00:00 aemet   0229I      &quot;SABADELL A… BARCELONA             146</span></span>
 <span id="cb3-45"><a href="#cb3-45" tabindex="-1"></a><span class="co">#&gt;  9 1990-01-01 00:00:00 aemet   0294B      &quot;LA BISBAL … GIRONA                 51</span></span>
 <span id="cb3-46"><a href="#cb3-46" tabindex="-1"></a><span class="co">#&gt; 10 1990-01-01 00:00:00 aemet   0321       &quot;CAMPDEVANO… GIRONA                731</span></span>
-<span id="cb3-47"><a href="#cb3-47" tabindex="-1"></a><span class="co">#&gt; # ℹ 5,056 more rows</span></span>
+<span id="cb3-47"><a href="#cb3-47" tabindex="-1"></a><span class="co">#&gt; # ℹ 4,654 more rows</span></span>
 <span id="cb3-48"><a href="#cb3-48" tabindex="-1"></a><span class="co">#&gt; # ℹ 14 more variables: mean_temperature [°C], min_temperature [°C],</span></span>
 <span id="cb3-49"><a href="#cb3-49" tabindex="-1"></a><span class="co">#&gt; #   max_temperature [°C], mean_relative_humidity [%],</span></span>
 <span id="cb3-50"><a href="#cb3-50" tabindex="-1"></a><span class="co">#&gt; #   min_relative_humidity [%], max_relative_humidity [%],</span></span>
@@ -519,60 +519,54 @@ directly:</p>
 <span id="cb5-43"><a href="#cb5-43" tabindex="-1"></a><span class="co">#&gt; ℹ © AEMET. Autorizado el uso de la información y su reproducción citando a</span></span>
 <span id="cb5-44"><a href="#cb5-44" tabindex="-1"></a><span class="co">#&gt;   AEMET como autora de la misma.</span></span>
 <span id="cb5-45"><a href="#cb5-45" tabindex="-1"></a><span class="co">#&gt; https://www.aemet.es/es/nota_legal</span></span>
-<span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a><span class="co">#&gt; ℹ © AEMET. Autorizado el uso de la información y su reproducción citando a</span></span>
-<span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a><span class="co">#&gt;   AEMET como autora de la misma.</span></span>
-<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a><span class="co">#&gt; https://www.aemet.es/es/nota_legal</span></span>
-<span id="cb5-49"><a href="#cb5-49" tabindex="-1"></a><span class="co">#&gt; Warning: Unable to connect to API at &lt;https://opendata.aemet.es/opendata/sh/9b12016c&gt;:</span></span>
-<span id="cb5-50"><a href="#cb5-50" tabindex="-1"></a><span class="co">#&gt; Error in curl::curl_fetch_memory(url, handle = handle): Failure when receiving</span></span>
-<span id="cb5-51"><a href="#cb5-51" tabindex="-1"></a><span class="co">#&gt; data from the peer [opendata.aemet.es]: Recv failure: Conexión reinicializada</span></span>
-<span id="cb5-52"><a href="#cb5-52" tabindex="-1"></a><span class="co">#&gt; por la máquina remota</span></span>
-<span id="cb5-53"><a href="#cb5-53" tabindex="-1"></a><span class="co">#&gt; ℹ This usually happens when connection with</span></span>
-<span id="cb5-54"><a href="#cb5-54" tabindex="-1"></a><span class="co">#&gt;   &lt;https://opendata.aemet.es/opendata/sh/9b12016c&gt; is not possible.</span></span>
-<span id="cb5-55"><a href="#cb5-55" tabindex="-1"></a><span class="co">#&gt; ℹ Data received</span></span>
-<span id="cb5-56"><a href="#cb5-56" tabindex="-1"></a><span class="co">#&gt; Trying again in 60 seconds (retry 1 of 3)</span></span>
-<span id="cb5-57"><a href="#cb5-57" tabindex="-1"></a><span class="co">#&gt; ℹ © AEMET. Autorizado el uso de la información y su reproducción citando a</span></span>
-<span id="cb5-58"><a href="#cb5-58" tabindex="-1"></a><span class="co">#&gt;   AEMET como autora de la misma.</span></span>
-<span id="cb5-59"><a href="#cb5-59" tabindex="-1"></a><span class="co">#&gt; https://www.aemet.es/es/nota_legal</span></span>
-<span id="cb5-60"><a href="#cb5-60" tabindex="-1"></a><span class="co">#&gt; ℹ © AEMET. Autorizado el uso de la información y su reproducción citando a</span></span>
-<span id="cb5-61"><a href="#cb5-61" tabindex="-1"></a><span class="co">#&gt;   AEMET como autora de la misma.</span></span>
-<span id="cb5-62"><a href="#cb5-62" tabindex="-1"></a><span class="co">#&gt; https://www.aemet.es/es/nota_legal</span></span>
-<span id="cb5-63"><a href="#cb5-63" tabindex="-1"></a></span>
-<span id="cb5-64"><a href="#cb5-64" tabindex="-1"></a><span class="fu">head</span>(res_tidyverse)</span>
-<span id="cb5-65"><a href="#cb5-65" tabindex="-1"></a><span class="co">#&gt;    timestamp service station_id          station_name station_province altitude</span></span>
-<span id="cb5-66"><a href="#cb5-66" tabindex="-1"></a><span class="co">#&gt; 1 1990-01-01   aemet      0002I           VANDELLÒS          TARRAGONA   32 [m]</span></span>
-<span id="cb5-67"><a href="#cb5-67" tabindex="-1"></a><span class="co">#&gt; 2 1990-01-01   aemet      0016A       REUS AEROPUERTO        TARRAGONA   71 [m]</span></span>
-<span id="cb5-68"><a href="#cb5-68" tabindex="-1"></a><span class="co">#&gt; 3 1990-01-01   aemet      0016B REUS (CENTRE LECTURA)        TARRAGONA  118 [m]</span></span>
-<span id="cb5-69"><a href="#cb5-69" tabindex="-1"></a><span class="co">#&gt; 4 1990-01-01   aemet       0076  BARCELONA AEROPUERTO        BARCELONA    4 [m]</span></span>
-<span id="cb5-70"><a href="#cb5-70" tabindex="-1"></a><span class="co">#&gt; 5 1990-01-01   aemet      0149D    MANRESA (LA CULLA)        BARCELONA  291 [m]</span></span>
-<span id="cb5-71"><a href="#cb5-71" tabindex="-1"></a><span class="co">#&gt; 6 1990-01-01   aemet      0158O            MONTSERRAT        BARCELONA  738 [m]</span></span>
-<span id="cb5-72"><a href="#cb5-72" tabindex="-1"></a><span class="co">#&gt;   mean_temperature min_temperature max_temperature mean_relative_humidity</span></span>
-<span id="cb5-73"><a href="#cb5-73" tabindex="-1"></a><span class="co">#&gt; 1        11.2 [°C]        8.8 [°C]       13.7 [°C]                 80 [%]</span></span>
-<span id="cb5-74"><a href="#cb5-74" tabindex="-1"></a><span class="co">#&gt; 2         9.0 [°C]        5.4 [°C]       12.6 [°C]                 89 [%]</span></span>
-<span id="cb5-75"><a href="#cb5-75" tabindex="-1"></a><span class="co">#&gt; 3        10.1 [°C]        8.4 [°C]       11.8 [°C]                 82 [%]</span></span>
-<span id="cb5-76"><a href="#cb5-76" tabindex="-1"></a><span class="co">#&gt; 4         9.2 [°C]        4.0 [°C]       14.4 [°C]                 74 [%]</span></span>
-<span id="cb5-77"><a href="#cb5-77" tabindex="-1"></a><span class="co">#&gt; 5         5.0 [°C]       -1.5 [°C]       11.6 [°C]                 69 [%]</span></span>
-<span id="cb5-78"><a href="#cb5-78" tabindex="-1"></a><span class="co">#&gt; 6         7.0 [°C]        3.0 [°C]       11.0 [°C]                 NA [%]</span></span>
-<span id="cb5-79"><a href="#cb5-79" tabindex="-1"></a><span class="co">#&gt;   min_relative_humidity max_relative_humidity precipitation wind_direction</span></span>
-<span id="cb5-80"><a href="#cb5-80" tabindex="-1"></a><span class="co">#&gt; 1                NA [%]                NA [%]     0 [L/m^2]         30 [°]</span></span>
-<span id="cb5-81"><a href="#cb5-81" tabindex="-1"></a><span class="co">#&gt; 2                NA [%]                NA [%]     0 [L/m^2]         99 [°]</span></span>
-<span id="cb5-82"><a href="#cb5-82" tabindex="-1"></a><span class="co">#&gt; 3                NA [%]                NA [%]     0 [L/m^2]         NA [°]</span></span>
-<span id="cb5-83"><a href="#cb5-83" tabindex="-1"></a><span class="co">#&gt; 4                NA [%]                NA [%]     0 [L/m^2]         NA [°]</span></span>
-<span id="cb5-84"><a href="#cb5-84" tabindex="-1"></a><span class="co">#&gt; 5                NA [%]                NA [%]     0 [L/m^2]         22 [°]</span></span>
-<span id="cb5-85"><a href="#cb5-85" tabindex="-1"></a><span class="co">#&gt; 6                NA [%]                NA [%]     0 [L/m^2]         NA [°]</span></span>
-<span id="cb5-86"><a href="#cb5-86" tabindex="-1"></a><span class="co">#&gt;   mean_wind_speed max_wind_speed insolation max_atmospheric_pressure</span></span>
-<span id="cb5-87"><a href="#cb5-87" tabindex="-1"></a><span class="co">#&gt; 1       1.7 [m/s]      6.4 [m/s]    0.1 [h]                 NA [hPa]</span></span>
-<span id="cb5-88"><a href="#cb5-88" tabindex="-1"></a><span class="co">#&gt; 2       0.6 [m/s]      5.0 [m/s]    0.1 [h]                 NA [hPa]</span></span>
-<span id="cb5-89"><a href="#cb5-89" tabindex="-1"></a><span class="co">#&gt; 3       0.6 [m/s]       NA [m/s]    0.2 [h]                 NA [hPa]</span></span>
-<span id="cb5-90"><a href="#cb5-90" tabindex="-1"></a><span class="co">#&gt; 4       3.6 [m/s]       NA [m/s]    6.7 [h]                 NA [hPa]</span></span>
-<span id="cb5-91"><a href="#cb5-91" tabindex="-1"></a><span class="co">#&gt; 5       0.8 [m/s]      3.9 [m/s]    7.8 [h]                 NA [hPa]</span></span>
-<span id="cb5-92"><a href="#cb5-92" tabindex="-1"></a><span class="co">#&gt; 6        NA [m/s]       NA [m/s]     NA [h]                 NA [hPa]</span></span>
-<span id="cb5-93"><a href="#cb5-93" tabindex="-1"></a><span class="co">#&gt;   min_atmospheric_pressure                   geometry</span></span>
-<span id="cb5-94"><a href="#cb5-94" tabindex="-1"></a><span class="co">#&gt; 1                 NA [hPa] POINT (0.8713889 40.95806)</span></span>
-<span id="cb5-95"><a href="#cb5-95" tabindex="-1"></a><span class="co">#&gt; 2                 NA [hPa]    POINT (1.163611 41.145)</span></span>
-<span id="cb5-96"><a href="#cb5-96" tabindex="-1"></a><span class="co">#&gt; 3                 NA [hPa]  POINT (1.108889 41.15417)</span></span>
-<span id="cb5-97"><a href="#cb5-97" tabindex="-1"></a><span class="co">#&gt; 4                 NA [hPa]      POINT (2.07 41.29278)</span></span>
-<span id="cb5-98"><a href="#cb5-98" tabindex="-1"></a><span class="co">#&gt; 5                 NA [hPa]     POINT (1.840278 41.72)</span></span>
-<span id="cb5-99"><a href="#cb5-99" tabindex="-1"></a><span class="co">#&gt; 6                 NA [hPa]  POINT (1.839167 41.59444)</span></span></code></pre></div>
+<span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a><span class="co">#&gt; ℹ Data received</span></span>
+<span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a><span class="co">#&gt; Trying again in 60 seconds (retry 1 of 3)</span></span>
+<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a><span class="co">#&gt; ℹ © AEMET. Autorizado el uso de la información y su reproducción citando a</span></span>
+<span id="cb5-49"><a href="#cb5-49" tabindex="-1"></a><span class="co">#&gt;   AEMET como autora de la misma.</span></span>
+<span id="cb5-50"><a href="#cb5-50" tabindex="-1"></a><span class="co">#&gt; https://www.aemet.es/es/nota_legal</span></span>
+<span id="cb5-51"><a href="#cb5-51" tabindex="-1"></a><span class="co">#&gt; ℹ © AEMET. Autorizado el uso de la información y su reproducción citando a</span></span>
+<span id="cb5-52"><a href="#cb5-52" tabindex="-1"></a><span class="co">#&gt;   AEMET como autora de la misma.</span></span>
+<span id="cb5-53"><a href="#cb5-53" tabindex="-1"></a><span class="co">#&gt; https://www.aemet.es/es/nota_legal</span></span>
+<span id="cb5-54"><a href="#cb5-54" tabindex="-1"></a><span class="co">#&gt; ℹ © AEMET. Autorizado el uso de la información y su reproducción citando a</span></span>
+<span id="cb5-55"><a href="#cb5-55" tabindex="-1"></a><span class="co">#&gt;   AEMET como autora de la misma.</span></span>
+<span id="cb5-56"><a href="#cb5-56" tabindex="-1"></a><span class="co">#&gt; https://www.aemet.es/es/nota_legal</span></span>
+<span id="cb5-57"><a href="#cb5-57" tabindex="-1"></a></span>
+<span id="cb5-58"><a href="#cb5-58" tabindex="-1"></a><span class="fu">head</span>(res_tidyverse)</span>
+<span id="cb5-59"><a href="#cb5-59" tabindex="-1"></a><span class="co">#&gt;    timestamp service station_id          station_name station_province altitude</span></span>
+<span id="cb5-60"><a href="#cb5-60" tabindex="-1"></a><span class="co">#&gt; 1 1990-01-01   aemet      0002I           VANDELLÒS          TARRAGONA   32 [m]</span></span>
+<span id="cb5-61"><a href="#cb5-61" tabindex="-1"></a><span class="co">#&gt; 2 1990-01-01   aemet      0016A       REUS AEROPUERTO        TARRAGONA   71 [m]</span></span>
+<span id="cb5-62"><a href="#cb5-62" tabindex="-1"></a><span class="co">#&gt; 3 1990-01-01   aemet      0016B REUS (CENTRE LECTURA)        TARRAGONA  118 [m]</span></span>
+<span id="cb5-63"><a href="#cb5-63" tabindex="-1"></a><span class="co">#&gt; 4 1990-01-01   aemet       0076  BARCELONA AEROPUERTO        BARCELONA    4 [m]</span></span>
+<span id="cb5-64"><a href="#cb5-64" tabindex="-1"></a><span class="co">#&gt; 5 1990-01-01   aemet      0149D    MANRESA (LA CULLA)        BARCELONA  291 [m]</span></span>
+<span id="cb5-65"><a href="#cb5-65" tabindex="-1"></a><span class="co">#&gt; 6 1990-01-01   aemet      0158O            MONTSERRAT        BARCELONA  738 [m]</span></span>
+<span id="cb5-66"><a href="#cb5-66" tabindex="-1"></a><span class="co">#&gt;   mean_temperature min_temperature max_temperature mean_relative_humidity</span></span>
+<span id="cb5-67"><a href="#cb5-67" tabindex="-1"></a><span class="co">#&gt; 1        11.2 [°C]        8.8 [°C]       13.7 [°C]                 80 [%]</span></span>
+<span id="cb5-68"><a href="#cb5-68" tabindex="-1"></a><span class="co">#&gt; 2         9.0 [°C]        5.4 [°C]       12.6 [°C]                 89 [%]</span></span>
+<span id="cb5-69"><a href="#cb5-69" tabindex="-1"></a><span class="co">#&gt; 3        10.1 [°C]        8.4 [°C]       11.8 [°C]                 82 [%]</span></span>
+<span id="cb5-70"><a href="#cb5-70" tabindex="-1"></a><span class="co">#&gt; 4         9.2 [°C]        4.0 [°C]       14.4 [°C]                 74 [%]</span></span>
+<span id="cb5-71"><a href="#cb5-71" tabindex="-1"></a><span class="co">#&gt; 5         5.0 [°C]       -1.5 [°C]       11.6 [°C]                 69 [%]</span></span>
+<span id="cb5-72"><a href="#cb5-72" tabindex="-1"></a><span class="co">#&gt; 6         7.0 [°C]        3.0 [°C]       11.0 [°C]                 NA [%]</span></span>
+<span id="cb5-73"><a href="#cb5-73" tabindex="-1"></a><span class="co">#&gt;   min_relative_humidity max_relative_humidity precipitation wind_direction</span></span>
+<span id="cb5-74"><a href="#cb5-74" tabindex="-1"></a><span class="co">#&gt; 1                NA [%]                NA [%]     0 [L/m^2]         30 [°]</span></span>
+<span id="cb5-75"><a href="#cb5-75" tabindex="-1"></a><span class="co">#&gt; 2                NA [%]                NA [%]     0 [L/m^2]         99 [°]</span></span>
+<span id="cb5-76"><a href="#cb5-76" tabindex="-1"></a><span class="co">#&gt; 3                NA [%]                NA [%]     0 [L/m^2]         NA [°]</span></span>
+<span id="cb5-77"><a href="#cb5-77" tabindex="-1"></a><span class="co">#&gt; 4                NA [%]                NA [%]     0 [L/m^2]         NA [°]</span></span>
+<span id="cb5-78"><a href="#cb5-78" tabindex="-1"></a><span class="co">#&gt; 5                NA [%]                NA [%]     0 [L/m^2]         22 [°]</span></span>
+<span id="cb5-79"><a href="#cb5-79" tabindex="-1"></a><span class="co">#&gt; 6                NA [%]                NA [%]     0 [L/m^2]         NA [°]</span></span>
+<span id="cb5-80"><a href="#cb5-80" tabindex="-1"></a><span class="co">#&gt;   mean_wind_speed max_wind_speed insolation max_atmospheric_pressure</span></span>
+<span id="cb5-81"><a href="#cb5-81" tabindex="-1"></a><span class="co">#&gt; 1       1.7 [m/s]      6.4 [m/s]    0.1 [h]                 NA [hPa]</span></span>
+<span id="cb5-82"><a href="#cb5-82" tabindex="-1"></a><span class="co">#&gt; 2       0.6 [m/s]      5.0 [m/s]    0.1 [h]                 NA [hPa]</span></span>
+<span id="cb5-83"><a href="#cb5-83" tabindex="-1"></a><span class="co">#&gt; 3       0.6 [m/s]       NA [m/s]    0.2 [h]                 NA [hPa]</span></span>
+<span id="cb5-84"><a href="#cb5-84" tabindex="-1"></a><span class="co">#&gt; 4       3.6 [m/s]       NA [m/s]    6.7 [h]                 NA [hPa]</span></span>
+<span id="cb5-85"><a href="#cb5-85" tabindex="-1"></a><span class="co">#&gt; 5       0.8 [m/s]      3.9 [m/s]    7.8 [h]                 NA [hPa]</span></span>
+<span id="cb5-86"><a href="#cb5-86" tabindex="-1"></a><span class="co">#&gt; 6        NA [m/s]       NA [m/s]     NA [h]                 NA [hPa]</span></span>
+<span id="cb5-87"><a href="#cb5-87" tabindex="-1"></a><span class="co">#&gt;   min_atmospheric_pressure                   geometry</span></span>
+<span id="cb5-88"><a href="#cb5-88" tabindex="-1"></a><span class="co">#&gt; 1                 NA [hPa] POINT (0.8713889 40.95806)</span></span>
+<span id="cb5-89"><a href="#cb5-89" tabindex="-1"></a><span class="co">#&gt; 2                 NA [hPa]    POINT (1.163611 41.145)</span></span>
+<span id="cb5-90"><a href="#cb5-90" tabindex="-1"></a><span class="co">#&gt; 3                 NA [hPa]  POINT (1.108889 41.15417)</span></span>
+<span id="cb5-91"><a href="#cb5-91" tabindex="-1"></a><span class="co">#&gt; 4                 NA [hPa]      POINT (2.07 41.29278)</span></span>
+<span id="cb5-92"><a href="#cb5-92" tabindex="-1"></a><span class="co">#&gt; 5                 NA [hPa]     POINT (1.840278 41.72)</span></span>
+<span id="cb5-93"><a href="#cb5-93" tabindex="-1"></a><span class="co">#&gt; 6                 NA [hPa]  POINT (1.839167 41.59444)</span></span></code></pre></div>
 </div>
 <div id="for-loop" class="section level3">
 <h3>for loop</h3>
