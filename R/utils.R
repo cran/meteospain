@@ -14,14 +14,6 @@ legal_note_style <- cli::combine_ansi_styles('blue', 'underline')
 
 # swiss knives ------------------------------------------------------------------------------------------
 
-.empty_string_to_null <- function(glue_string) {
-  if (length(glue_string) < 1) {
-    NULL
-  } else {
-    glue_string
-  }
-}
-
 .create_missing_vars <- function(df, var_names) {
 
   missing_var_names <- var_names[which(!var_names %in% names(df))]
@@ -200,46 +192,25 @@ relocate_vars <- function(data) {
     )
 }
 
-.ria_url2station <- function(station_url) {
-  if (stringr::str_detect(station_url, 'mensuales')) {
-    parts <- stringr::str_remove_all(
-      station_url, 'https://www.juntadeandalucia.es/agriculturaypesca/ifapa/riaws/datosmensuales/'
-    ) |>
-      stringr::str_split('/', n = 3, simplify = TRUE)
-    return(glue::glue("{parts[,1]}-{parts[,2]}"))
-  } else {
-    parts <- stringr::str_remove_all(
-      station_url, 'https://www.juntadeandalucia.es/agriculturaypesca/ifapa/riaws/datosdiarios/forceEt0/'
-    ) |>
-      stringr::str_split('/', n = 3, simplify = TRUE)
-    return(glue::glue("{parts[,1]}-{parts[,2]}"))
-  }
-}
-
-.manage_429_errors <- function(api_status_check, api_options, .f) {
-
-  # if api request limit reached, do a recursive call to the function after 60 seconds
-  # But only once. Is complicated to know if the limit is because too much request per second or
-  # if the quota limit has been reached. So, we repeat once after 60 seconds, and if the error
-  # persists, stop.
-  # For that we use api_options$while_number. If it is null or less than one repeat,
-  # if not, stop
-  while (is.null(api_options$while_number) || api_options$while_number > 0) {
-    if (is.null(api_options$while_number)) {
-      api_options$while_number <- 3
+.ria_url2station <- function(stations_url) {
+  purrr::map_chr(
+    stations_url,
+    \(station_url) {
+      if (stringr::str_detect(station_url, 'mensuales')) {
+        parts <- stringr::str_remove_all(
+          station_url, 'https://www.juntadeandalucia.es/agriculturaypesca/ifapa/riaws/datosmensuales/'
+        ) |>
+          stringr::str_split('/', n = 3, simplify = TRUE)
+        return(glue::glue("{parts[,1]}-{parts[,2]}"))
+      } else {
+        parts <- stringr::str_remove_all(
+          station_url, 'https://www.juntadeandalucia.es/agriculturaypesca/ifapa/riaws/datosdiarios/forceEt0/'
+        ) |>
+          stringr::str_split('/', n = 3, simplify = TRUE)
+        return(glue::glue("{parts[,1]}-{parts[,2]}"))
+      }
     }
-    cli::cli_inform(c(
-      i = copyright_style(api_status_check$message),
-      "Trying again in 60 seconds (retry {4 - api_options$while_number} of 3)"
-    ))
-    Sys.sleep(60)
-    api_options$while_number <- api_options$while_number - 1
-    return(.f(api_options))
-  }
-  cli::cli_abort(c(
-    x = api_status_check$code,
-    i = api_status_check$message
-  ))
+  )
 }
 
 .aemet_coords_generator <- function(coord_vec) {
@@ -311,7 +282,7 @@ unnest_safe <- function(x, ...) {
 # test helpers ------------------------------------------------------------------------------------------
 
 skip_if_no_internet <- function() {
-  if (!curl::has_internet()) {
+  if (!httr2::is_online()) {
     testthat::skip("No internet connection, skipping tests")
   }
 }
@@ -362,74 +333,6 @@ main_test_battery <- function(test_object, ...) {
   if (!is.null(args$stations_to_check)) {
     testthat::expect_equal(sort(unique(test_object$station_id)), sort(rlang::eval_tidy(args$stations_to_check)))
   }
-}
-
-# GET and xml2 safe functions -----------------------------------------------------
-
-# safe GET
-.safeGET <- function(...) {
-
-  # create safe version
-  sGET <- purrr::safely(httr::GET)
-
-  # get response
-  response <- sGET(...)
-
-  return(response)
-}
-
-# safe xml
-.safe_read_xml <- function(...) {
-
-  # create safe version
-  s_read_xml <- purrr::safely(xml2::read_xml)
-
-  # add user agent
-  response <- httr::with_config(
-    httr::user_agent('https://github.com/emf-creaf/meteospain'),
-    s_read_xml(...)
-  )
-
-  return(response)
-}
-
-# return the corresponding safe function for the type of API
-safe_api_access <- function(type = c('rest', 'xml'), ...) {
-
-  # select the api function (.safeGET for REST APIs, .safe_read_xml for xml)
-  api_access <- switch(
-    type,
-    'rest' = .safeGET,
-    'xml' = .safe_read_xml
-  )
-
-  response <- api_access(...)
-
-  # checks and errors
-  if (is.null(response$result)) {
-    # browser()
-    din_dots <- rlang::list2(...)
-    cli::cli_warn(c(
-      "Unable to connect to API at {.url {din_dots[[1]]}}: {.val {response$error}}",
-      i = "This usually happens when connection with {.url {din_dots[[1]]}} is not possible."
-    ))
-    return(NULL)
-  }
-
-  # Aemet shanenigans, let's try catch them
-  if (
-    !is.null(response$result$headers$`remaining-request-count`) &&
-      as.numeric(response$result$headers$`remaining-request-count`) < 6
-  ) {
-    cli::cli_warn(c(
-      "Reaching end of remaining request for AEMET API",
-      "!" = "Remaining requests = {response$result$headers$`remaining-request-count`}",
-      i = "Waiting 60 seconds to cooldown"
-    ))
-    Sys.sleep(60)
-  }
-
-  return(response$result)
 }
 
 # cache functions

@@ -261,11 +261,10 @@ test_that("meteocat yearly works", {
 })
 
 test_that("meteocat API errors, messages, warnings are correctly raised", {
-  # copyright message
-  api_options <- meteocat_options(api_key = keyring::key_get('meteocat'))
   # invalid key
+  clear_meteospain_cache()
   api_options <- meteocat_options(api_key = 'tururu')
-  expect_error(get_meteo_from('meteocat', api_options), "Invalid API Key")
+  expect_error(get_meteo_from('meteocat', api_options), "API key")
   # dates out of bounds:
   # This is checked on the service options level
 
@@ -279,6 +278,9 @@ test_that("meteocat API errors, messages, warnings are correctly raised", {
   expect_error(get_meteo_from('meteocat', api_options), "provided have no data for the dates selected")
   api_options$resolution <- 'tururu'
   expect_error(get_meteo_from('meteocat', api_options), "is not a valid temporal resolution")
+  # api limits reached
+  api_options <- meteocat_options("daily", api_key = keyring::key_get("meteocat_zero"))
+  expect_error(get_meteo_from("meteocat", api_options), "for this month")
 })
 
 
@@ -287,5 +289,5 @@ test_that("meteocat API errors, messages, warnings are correctly raised", {
 test_that("meteocat get_quota works as expected", {
   api_options <- meteocat_options(api_key = keyring::key_get('meteocat'))
   expect_s3_class((test_object <- get_quota_from('meteocat', api_options)), 'tbl')
-  expect_named(test_object, c('nom', 'periode', 'maxConsultes', 'consultesRestants', 'consultesRealitzades'))
+  expect_named(test_object, c("client", 'nom', 'periode', 'maxConsultes', 'consultesRestants', 'consultesRealitzades'))
 })

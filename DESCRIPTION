@@ -1,6 +1,6 @@
 Package: meteospain
 Title: Access to Spanish Meteorological Stations Services
-Version: 0.2.2
+Version: 0.3.0
 Authors@R: 
     c(
       person(given = "Victor",
@@ -29,13 +29,13 @@ Description: Access to different Spanish meteorological stations data services a
   Meteoclimatic...).
 License: MIT + file LICENSE
 Encoding: UTF-8
-RoxygenNote: 7.3.2
-Depends: R (>= 4.1.0)
+RoxygenNote: 7.3.3
+Depends: R (>= 4.3.0)
 Suggests: ggforce, ggplot2, keyring, knitr, rmarkdown, testthat (>=
         3.0.0), withr
-Imports: assertthat, dplyr (>= 1.0.0), glue, httr, jsonlite, lubridate,
-        purrr (>= 1.0.0), rlang, sf, stringr, tidyr, units, xml2,
-        vctrs, cachem, curl, cli
+Imports: assertthat, dplyr (>= 1.0.0), glue, jsonlite, lubridate, purrr
+        (>= 1.0.0), rlang, sf, stringr, tidyr, units, xml2, vctrs,
+        cachem, cli, httr2, rvest
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 VignetteBuilder: knitr
@@ -43,7 +43,7 @@ URL: https://emf-creaf.github.io/meteospain/,
         https://github.com/emf-creaf/meteospain
 BugReports: https://github.com/emf-creaf/meteospain/issues
 NeedsCompilation: no
-Packaged: 2025-10-01 14:33:10 UTC; malditobarbudo
+Packaged: 2025-11-12 10:06:44 UTC; malditobarbudo
 Author: Victor Granda [aut, cre] (ORCID:
     <https://orcid.org/0000-0002-0469-1991>),
   Miquel de Caceres [ctb] (ORCID:
@@ -53,4 +53,4 @@ Author: Victor Granda [aut, cre] (ORCID:
   Rubén Fernández-Casal [ctb]
 Maintainer: Victor Granda <victorgrandagarcia@gmail.com>
 Repository: CRAN
-Date/Publication: 2025-10-01 14:50:02 UTC
+Date/Publication: 2025-11-12 10:30:02 UTC

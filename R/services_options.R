@@ -17,7 +17,7 @@
 #' Temporal resolutions vary from service to service. Check the "Usage" section to see resolutions available
 #' to each service. Possible values are:
 #' \itemize{
-#'   \item{\code{current_day} returns the last 24h of measures.}
+#'   \item{\code{current_day} returns the last 12-24h of measures.}
 #'   \item{\code{instant} returns the last measures available.}
 #'   \item{\code{hourly} returns the hourly measures.}
 #'   \item{\code{daily} returns any past date/s with daily aggregation.}
@@ -97,7 +97,8 @@ aemet_options <- function(
   assertthat::assert_that(
     assertthat::is.date(start_date),
     assertthat::is.date(end_date),
-    rlang::is_character(api_key)
+    rlang::is_character(api_key),
+    nchar(api_key) > 0
   )
   assertthat::assert_that(
     dplyr::if_else(rlang::is_null(stations), TRUE, rlang::is_character(stations)),
@@ -144,7 +145,8 @@ meteocat_options <- function(
   resolution <- rlang::arg_match(resolution)
   assertthat::assert_that(
     assertthat::is.date(start_date),
-    rlang::is_character(api_key)
+    rlang::is_character(api_key),
+    nchar(api_key) > 0
   )
   assertthat::assert_that(
     dplyr::if_else(rlang::is_null(stations), TRUE, rlang::is_character(stations)),
