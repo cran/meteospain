@@ -1,6 +1,6 @@
 Package: meteospain
 Title: Access to Spanish Meteorological Stations Services
-Version: 0.3.0
+Version: 0.3.1
 Authors@R: 
     c(
       person(given = "Victor",
@@ -43,7 +43,7 @@ URL: https://emf-creaf.github.io/meteospain/,
         https://github.com/emf-creaf/meteospain
 BugReports: https://github.com/emf-creaf/meteospain/issues
 NeedsCompilation: no
-Packaged: 2025-11-12 10:06:44 UTC; malditobarbudo
+Packaged: 2026-01-08 10:35:03 UTC; malditobarbudo
 Author: Victor Granda [aut, cre] (ORCID:
     <https://orcid.org/0000-0002-0469-1991>),
   Miquel de Caceres [ctb] (ORCID:
@@ -53,4 +53,4 @@ Author: Victor Granda [aut, cre] (ORCID:
   Rubén Fernández-Casal [ctb]
 Maintainer: Victor Granda <victorgrandagarcia@gmail.com>
 Repository: CRAN
-Date/Publication: 2025-11-12 10:30:02 UTC
+Date/Publication: 2026-01-08 15:10:08 UTC
